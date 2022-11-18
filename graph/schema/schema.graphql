@@ -1,0 +1,25 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Query {
+  node(id: ID!): String!
+}
+
+type Mutation {
+  noop(input: NoopInput): NoopPayload
+}
+
+input NoopInput {
+  clientMutationId: String
+}
+
+type NoopPayload {
+  clientMutationId: String
+}
+
+type Subscription {
+  noop(input: NoopInput): NoopPayload
+}
