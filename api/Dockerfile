@@ -2,6 +2,8 @@ FROM golang:1.19
 
 WORKDIR /app
 
+COPY . .
+
 RUN apt-get update \
     && apt-get install -y wget
 
@@ -10,9 +12,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-RUN go install github.com/kyoh86/richgo@latest  \
-    && go install bitbucket.org/liamstask/goose/cmd/goose@latest \
-    && go install github.com/google/wire/cmd/wire@latest \
-    && go install github.com/makiuchi-d/arelo@latest
+RUN go install github.com/99designs/gqlgen@v0.17.20 &&  \
+    go install github.com/makiuchi-d/arelo@latest
 
 ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Sei-Yukinari/gqlgen-todos/graph/generated"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/resolver"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 )
 
 const defaultPort = "8080"
@@ -19,7 +21,15 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver.NewResolver()}))
+	redis := redis.New(context.Background())
+	rl := resolver.NewResolver(redis)
+	srv := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{
+				Resolvers: rl,
+			},
+		),
+	)
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

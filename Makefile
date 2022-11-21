@@ -1,9 +1,8 @@
 # Variables
-PROJECT = remosis-guide-tokyu-kyoto
+PROJECT = gqlgen-todos
 COMPOSE_PATH := ./docker-compose.yml
 COMPOSE_COMMAND := docker-compose -f $(COMPOSE_PATH) -p $(PROJECT)
 SERVICE_API := api
-SERVICE_DB := db
 
 ### Start selected environment
 .PHONY: start

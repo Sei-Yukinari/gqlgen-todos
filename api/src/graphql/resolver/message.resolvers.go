@@ -5,11 +5,12 @@ package resolver
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"log"
 	"time"
 
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/segmentio/ksuid"
 )
 
@@ -22,46 +23,42 @@ func (r *mutationResolver) PostMessage(ctx context.Context, user string, text st
 		Text:      text,
 	}
 
-	// 投稿されたメッセージを保存し、subscribeしている全てのコネクションにブロードキャスト
-	r.mutex.Lock()
-	r.messages = append(r.messages, message)
-	for _, ch := range r.subscribers {
-		ch <- message
+	messageJson, _ := json.Marshal(message)
+	if err := r.redisClient.LPush(ctx, redis.KeyMessages, string(messageJson)).Err(); err != nil {
+		log.Println(err.Error())
+		return nil, err
 	}
-	r.mutex.Unlock()
+
+	r.redisClient.Publish(ctx, redis.PostMessagesSubscription, messageJson)
 
 	return message, nil
 }
 
 // Messages is the resolver for the messages field.
 func (r *queryResolver) Messages(ctx context.Context) ([]*gmodel.Message, error) {
-	return r.messages, nil
+	cmd := r.redisClient.LRange(ctx, redis.KeyMessages, 0, -1)
+	err := cmd.Err()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	result, err := cmd.Result()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	var messages []*gmodel.Message
+	for _, messageJson := range result {
+		m := &gmodel.Message{}
+		_ = json.Unmarshal([]byte(messageJson), &m)
+		messages = append(messages, m)
+	}
+
+	return messages, nil
 }
 
 // MessagePosted is the resolver for the messagePosted field.
 func (r *subscriptionResolver) MessagePosted(ctx context.Context, user string) (<-chan *gmodel.Message, error) {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-
-	if _, ok := r.subscribers[user]; ok {
-		err := fmt.Errorf("`%s` has already been subscribed", user)
-		log.Print(err.Error())
-		return nil, err
-	}
-
-	// チャンネルを作成し、リストに登録
-	ch := make(chan *gmodel.Message, 1)
-	r.subscribers[user] = ch
-	log.Printf("`%s` has been subscribed!", user)
-
-	// コネクションが終了したら、このチャンネルを削除する
-	go func() {
-		<-ctx.Done()
-		r.mutex.Lock()
-		delete(r.subscribers, user)
-		r.mutex.Unlock()
-		log.Printf("`%s` has been unsubscribed.", user)
-	}()
-
-	return ch, nil
+	return r.subscribers.Message.Subscribe(ctx, user), nil
 }
