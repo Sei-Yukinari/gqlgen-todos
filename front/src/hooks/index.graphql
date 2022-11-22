@@ -1,9 +1,9 @@
-                query findTodos {
-                  todos {
-                    text
-                    done
-                    user {
-                      name
-                    }
-                  }
-                }
+query findTodos {
+    todos {
+        text
+        done
+        user {
+            name
+        }
+    }
+}
