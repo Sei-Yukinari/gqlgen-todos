@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -11,11 +12,15 @@ func NewCors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cors.New(cors.Config{
 			AllowAllOrigins:  true,
-			AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+			AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
 			AllowCredentials: false,
 			MaxAge:           12 * time.Hour,
 		})
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
 		c.Next()
 	}
 }
