@@ -1,9 +1,13 @@
-import type { CodegenConfig } from '@graphql-codegen/cli';
+import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
   overwrite: true,
 
-  schema: '../api/graph/schema/*.graphql',
+  schema: {
+    'http://localhost:8080/query': {
+      headers: { Origin: 'http://localhost:3000' },
+    },
+  },
   documents: 'src/**/*.graphql',
   generates: {
     'src/gql/graphql.ts': {
@@ -17,6 +21,9 @@ const config: CodegenConfig = {
       plugins: ['introspection'],
     },
   },
-};
+  hooks: {
+    afterOneFileWrite: 'npx eslint --fix',
+  },
+}
 
-export default config;
+export default config

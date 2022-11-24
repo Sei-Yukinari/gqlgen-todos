@@ -1,8 +1,9 @@
-import { FC, useEffect } from 'react'
-import { useTodo } from '@/hooks/useTodo'
-import { useSubscription } from 'urql'
 import { gql } from 'graphql-request'
+import { FC, useEffect } from 'react'
+import { useSubscription } from 'urql'
+
 import { useFindTodosQuery } from '@/gql/graphql'
+import { useTodo } from '@/hooks/useTodo'
 
 const HomePage: FC = () => {
   const todo = useTodo()

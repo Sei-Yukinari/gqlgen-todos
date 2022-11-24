@@ -1,42 +1,89 @@
 {
   "env": {
-    "browser": true,
+    "es6": true,
     "node": true,
-    "es2022": true
+    "browser": true,
+    "commonjs": true
+  },
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly",
+    "React": "writable"
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": "latest",
-    "project": "./tsconfig.json",
+    "ecmaVersion": 2018,
+    "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
     }
   },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": [
+    "react-hooks",
+    "react",
+    "@typescript-eslint",
+    "prettier",
+    "simple-import-sort",
+    "unused-imports"
+  ],
   "extends": [
     "eslint:recommended",
-    "next/core-web-vitals",
+    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
-    "airbnb",
-    "airbnb-typescript"
-  ],
-  "plugins": [
-    "react"
+    "plugin:react-hooks/recommended",
+    "prettier",
+    "plugin:@next/next/recommended"
   ],
   "rules": {
-    "semi": ["error", "never", {"beforeStatementContinuationChars": "never"}],
-    "linebreak-style": [
+    "prettier/prettier": [
       "error",
-      "windows"
-    ],
-    "react/react-in-jsx-scope": "off",
-    "react/function-component-definition": [
-      2,
       {
-        "namedComponents": "arrow-function",
-        "unnamedComponents": "arrow-function"
+        "trailingComma": "all",
+        "endOfLine": "lf",
+        "semi": false,
+        "singleQuote": true,
+        "printWidth": 80,
+        "tabWidth": 2
       }
     ],
-    "react/prop-types": "off"
-  }
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    // 未使用のimportを削除
+    "unused-imports/no-unused-imports": "error",
+    /* TODO 不要なファイルの場合も多く、対応に時間がかかるので、一先ず無視するが、
+      ここからban-ts-commentまでのルールはリファクタフェーズでは修正する */
+    // JSX escape
+    "react/no-unescaped-entities": 0,
+    // anyの禁止
+    "@typescript-eslint/no-explicit-any": 0,
+    // 内部関数に名前を付ける
+    "react/display-name": "off",
+    // 空の関数を許可
+    "@typescript-eslint/no-empty-function": "off",
+    // tsエラーの無視
+    "@typescript-eslint/ban-ts-comment": "off",
+    // デフォルトのimgタグを許可
+    "@next/next/no-img-element": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.js"
+      ],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/explicit-function-return-type": "off"
+      }
+    }
+  ]
 }
