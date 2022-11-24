@@ -9,6 +9,7 @@ package di
 import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/resolver"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/subscriber"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/server"
@@ -20,7 +21,8 @@ import (
 
 func InitRouter() *gin.Engine {
 	client := redis.New()
-	resolverResolver := resolver.New(client)
+	subscribers := subscriber.New(client)
+	resolverResolver := resolver.New(client, subscribers)
 	engine := server.NewRouter(resolverResolver)
 	return engine
 }

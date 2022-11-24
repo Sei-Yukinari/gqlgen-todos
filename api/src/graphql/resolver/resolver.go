@@ -1,7 +1,6 @@
 package resolver
 
 import (
-	"context"
 	"sync"
 
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
@@ -13,24 +12,18 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Subscribers struct {
-	Message *subscriber.MessageSubscriber
-}
-
 type Resolver struct {
 	todos       []*gmodel.Todo
 	redisClient *redis.Client
-	subscribers Subscribers
+	subscribers subscriber.Subscribers
 	messages    []*gmodel.Message
 	mutex       sync.Mutex
 }
 
-func New(redis *redis.Client) *Resolver {
+func New(redis *redis.Client, subscribers subscriber.Subscribers) *Resolver {
 	return &Resolver{
 		redisClient: redis,
-		subscribers: Subscribers{
-			Message: subscriber.NewMessage(context.Background(), redis),
-		},
-		mutex: sync.Mutex{},
+		subscribers: subscribers,
+		mutex:       sync.Mutex{},
 	}
 }
