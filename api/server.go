@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Sei-Yukinari/gqlgen-todos/graph/generated"
@@ -32,7 +33,7 @@ func main() {
 			Resolvers: rl,
 		},
 	))
-
+	srv.Use(extension.Introspection{})
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.Websocket{
@@ -46,7 +47,15 @@ func main() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080", "ws//localhost:8080"},
+		AllowedOrigins: []string{"http://localhost:3000", "http://localhost:8080", "ws//localhost:8080"},
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
 		AllowCredentials: true,
 	})
 	http.Handle("/query", c.Handler(srv))
