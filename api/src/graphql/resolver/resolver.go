@@ -25,7 +25,7 @@ type Resolver struct {
 	mutex       sync.Mutex
 }
 
-func NewResolver(redis *redis.Client) *Resolver {
+func New(redis *redis.Client) *Resolver {
 	return &Resolver{
 		redisClient: redis,
 		subscribers: Subscribers{

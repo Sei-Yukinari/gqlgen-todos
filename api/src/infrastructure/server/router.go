@@ -1,12 +1,12 @@
 package server
 
 import (
-	"github.com/Sei-Yukinari/gqlgen-todos/graph/generated"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/resolver"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/middleware"
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(resolver generated.ResolverRoot) *gin.Engine {
+func NewRouter(resolver *resolver.Resolver) *gin.Engine {
 
 	middlewares := []gin.HandlerFunc{
 		middleware.NewCors(),

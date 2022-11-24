@@ -9,13 +9,13 @@ import (
 
 type Client = redis.Client
 
-func New(ctx context.Context) *Client {
+func New() *Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})
-	err := client.Ping(ctx).Err()
+	err := client.Ping(context.Background()).Err()
 
 	if err != nil {
 		log.Fatalf("failed to connect redis:%v\n", err)
