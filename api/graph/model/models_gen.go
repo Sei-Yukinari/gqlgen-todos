@@ -26,6 +26,11 @@ type NoopPayload struct {
 	ClientMutationID *string `json:"clientMutationId"`
 }
 
+type PostMessageInput struct {
+	User string `json:"user"`
+	Text string `json:"text"`
+}
+
 type Todo struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`

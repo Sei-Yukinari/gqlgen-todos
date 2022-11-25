@@ -57,7 +57,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateTodo  func(childComplexity int, input gmodel.NewTodo) int
 		Noop        func(childComplexity int, input *gmodel.NoopInput) int
-		PostMessage func(childComplexity int, user string, text string) int
+		PostMessage func(childComplexity int, input *gmodel.PostMessageInput) int
 	}
 
 	NoopPayload struct {
@@ -90,7 +90,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Noop(ctx context.Context, input *gmodel.NoopInput) (*gmodel.NoopPayload, error)
-	PostMessage(ctx context.Context, user string, text string) (*gmodel.Message, error)
+	PostMessage(ctx context.Context, input *gmodel.PostMessageInput) (*gmodel.Message, error)
 	CreateTodo(ctx context.Context, input gmodel.NewTodo) (*gmodel.Todo, error)
 }
 type QueryResolver interface {
@@ -180,7 +180,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.PostMessage(childComplexity, args["user"].(string), args["text"].(string)), true
+		return e.complexity.Mutation.PostMessage(childComplexity, args["input"].(*gmodel.PostMessageInput)), true
 
 	case "NoopPayload.clientMutationId":
 		if e.complexity.NoopPayload.ClientMutationID == nil {
@@ -291,6 +291,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputNewTodo,
 		ec.unmarshalInputNoopInput,
+		ec.unmarshalInputPostMessageInput,
 	)
 	first := true
 
@@ -377,8 +378,13 @@ type Message {
     text: String!
 }
 
+input PostMessageInput {
+    user: String!
+    text: String!
+}
+
 extend type Mutation {
-    postMessage(user: String!, text: String!): Message
+    postMessage(input: PostMessageInput): Message
 }
 
 extend type Query {
@@ -478,24 +484,15 @@ func (ec *executionContext) field_Mutation_noop_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Mutation_postMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["user"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 *gmodel.PostMessageInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOPostMessageInput2ᚖgithubᚗcomᚋSeiᚑYukinariᚋgqlgenᚑtodosᚋgraphᚋmodelᚐPostMessageInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["user"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["text"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["text"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -843,7 +840,7 @@ func (ec *executionContext) _Mutation_postMessage(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PostMessage(rctx, fc.Args["user"].(string), fc.Args["text"].(string))
+		return ec.resolvers.Mutation().PostMessage(rctx, fc.Args["input"].(*gmodel.PostMessageInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3545,6 +3542,42 @@ func (ec *executionContext) unmarshalInputNoopInput(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPostMessageInput(ctx context.Context, obj interface{}) (gmodel.PostMessageInput, error) {
+	var it gmodel.PostMessageInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"user", "text"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "user":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
+			it.User, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "text":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			it.Text, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4703,6 +4736,14 @@ func (ec *executionContext) marshalONoopPayload2ᚖgithubᚗcomᚋSeiᚑYukinari
 		return graphql.Null
 	}
 	return ec._NoopPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPostMessageInput2ᚖgithubᚗcomᚋSeiᚑYukinariᚋgqlgenᚑtodosᚋgraphᚋmodelᚐPostMessageInput(ctx context.Context, v interface{}) (*gmodel.PostMessageInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPostMessageInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

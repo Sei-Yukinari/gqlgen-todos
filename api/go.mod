@@ -7,9 +7,13 @@ require (
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/google/wire v0.5.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/segmentio/ksuid v1.0.4
 	github.com/vektah/gqlparser/v2 v2.5.1
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+	gorm.io/driver/mysql v1.4.4
+	gorm.io/gorm v1.24.2
 )
 
 require (
@@ -23,7 +27,6 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
-	github.com/google/wire v0.5.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -47,6 +50,4 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.4.4 // indirect
-	gorm.io/gorm v1.24.2 // indirect
 )

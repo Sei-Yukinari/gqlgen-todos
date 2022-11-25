@@ -7,8 +7,13 @@ type Message {
     text: String!
 }
 
+input PostMessageInput {
+    user: String!
+    text: String!
+}
+
 extend type Mutation {
-    postMessage(user: String!, text: String!): Message
+    postMessage(input: PostMessageInput): Message
 }
 
 extend type Query {

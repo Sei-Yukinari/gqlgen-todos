@@ -13,12 +13,12 @@ import (
 )
 
 // PostMessage is the resolver for the postMessage field.
-func (r *mutationResolver) PostMessage(ctx context.Context, user string, text string) (*gmodel.Message, error) {
+func (r *mutationResolver) PostMessage(ctx context.Context, input *gmodel.PostMessageInput) (*gmodel.Message, error) {
 	message := &model.Message{
 		ID:        ksuid.New().String(),
 		CreatedAt: time.Now().UTC(),
-		User:      user,
-		Text:      text,
+		User:      input.User,
+		Text:      input.Text,
 	}
 
 	r.repositories.Message.PostAndPublish(ctx, message)
