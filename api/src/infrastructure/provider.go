@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/rdb"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/server"
 	"github.com/google/wire"
@@ -8,5 +9,6 @@ import (
 
 var Set = wire.NewSet(
 	redis.New,
+	rdb.New,
 	server.NewRouter,
 )

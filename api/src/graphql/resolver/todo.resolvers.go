@@ -5,24 +5,47 @@ package resolver
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
 
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input gmodel.NewTodo) (*gmodel.Todo, error) {
-	todo := &gmodel.Todo{
+	todo := model.Todo{
 		Text: input.Text,
-		ID:   fmt.Sprintf("T%d", rand.Int()),
-		User: &gmodel.User{ID: input.UserID, Name: "user " + input.UserID},
+		Done: false,
 	}
-	r.todos = append(r.todos, todo)
-	return todo, nil
+	t, err := r.repositories.Todo.Create(ctx, &todo)
+	if err != nil {
+		return nil, err
+	}
+	result := &gmodel.Todo{
+		ID:   t.ID,
+		Text: t.Text,
+		Done: t.Done,
+		User: &gmodel.User{
+			ID:   "aaa",
+			Name: "bbb",
+		},
+	}
+	return result, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
-	return r.todos, nil
+	todos, err := r.repositories.Todo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var result []*gmodel.Todo
+	for _, v := range todos {
+		t := &gmodel.Todo{
+			ID:   v.ID,
+			Text: v.Text,
+			Done: false,
+		}
+		result = append(result, t)
+	}
+	return result, nil
 }
