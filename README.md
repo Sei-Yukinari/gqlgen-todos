@@ -1,0 +1,47 @@
+# gqlgen-todos
+This Repository is using gqlgen as a trial
+
+## System architecture
+```mermaid
+graph LR
+    front --> |query/mutation|api[galgen<br>GraphQL]
+    api --> mysql
+    api <-->|pub/sub| redis
+    api --> |subscription|front
+```
+
+## Requirement
+### api
+
+* Go 1.19.*
+* gqlgen v0.17.*
+* gin 1.8.* (web framework)
+* gorm v2 1.24.* (orm)
+* wire v0.5.*(di)
+
+### front
+
+* typescript 4.9.*
+* next 13.0.*
+* urql 3.0.*
+
+## Usage
+
+start
+```bash
+$ make start
+```
+
+graphql server build([gqlgen](https://gqlgen.com/))
+```bash
+$ make exec api
+## in container
+make generate
+```
+
+di generate ([wire](https://github.com/google/wire))
+```bash
+$ make exec api
+## in container
+$ make di
+```
