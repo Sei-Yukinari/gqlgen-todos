@@ -1,0 +1,26 @@
+package presenter
+
+import (
+	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+)
+
+func (p *Presenter) Todo(todo *model.Todo) *gmodel.Todo {
+	return &gmodel.Todo{
+		ID:   todo.ID,
+		Text: todo.Text,
+		Done: todo.Done,
+		User: &gmodel.User{
+			ID:   "aaa",
+			Name: "bbb",
+		},
+	}
+}
+
+func (p *Presenter) Todos(todos []*model.Todo) []*gmodel.Todo {
+	var operators []*gmodel.Todo
+	for _, v := range todos {
+		operators = append(operators, p.Todo(v))
+	}
+	return operators
+}

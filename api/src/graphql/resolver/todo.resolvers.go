@@ -20,16 +20,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input gmodel.NewTodo)
 	if err != nil {
 		return nil, err
 	}
-	result := &gmodel.Todo{
-		ID:   t.ID,
-		Text: t.Text,
-		Done: t.Done,
-		User: &gmodel.User{
-			ID:   "aaa",
-			Name: "bbb",
-		},
-	}
-	return result, nil
+	return r.presenter.Todo(t), nil
 }
 
 // Todos is the resolver for the todos field.
@@ -38,14 +29,5 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result []*gmodel.Todo
-	for _, v := range todos {
-		t := &gmodel.Todo{
-			ID:   v.ID,
-			Text: v.Text,
-			Done: false,
-		}
-		result = append(result, t)
-	}
-	return result, nil
+	return r.presenter.Todos(todos), nil
 }
