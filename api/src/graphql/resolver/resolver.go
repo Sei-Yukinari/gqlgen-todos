@@ -17,7 +17,7 @@ import (
 
 type Resolver struct {
 	rdb          *gorm.DB
-	redisClient  *redis.Client
+	redis        *redis.Client
 	subscribers  subscriber.Subscribers
 	repositories *gateway.Repositories
 	presenter    *presenter.Presenter
@@ -34,7 +34,7 @@ func New(
 ) *Resolver {
 	return &Resolver{
 		rdb:          rdb,
-		redisClient:  redis,
+		redis:        redis,
 		subscribers:  subscribers,
 		repositories: repositories,
 		presenter:    presenter,

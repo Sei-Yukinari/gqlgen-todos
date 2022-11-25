@@ -5,57 +5,34 @@ package resolver
 
 import (
 	"context"
-	"encoding/json"
-	"log"
 	"time"
 
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
-	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/segmentio/ksuid"
 )
 
 // PostMessage is the resolver for the postMessage field.
 func (r *mutationResolver) PostMessage(ctx context.Context, user string, text string) (*gmodel.Message, error) {
-	message := &gmodel.Message{
+	message := &model.Message{
 		ID:        ksuid.New().String(),
 		CreatedAt: time.Now().UTC(),
 		User:      user,
 		Text:      text,
 	}
 
-	messageJson, _ := json.Marshal(message)
-	if err := r.redisClient.LPush(ctx, redis.KeyMessages, string(messageJson)).Err(); err != nil {
-		log.Println(err.Error())
-		return nil, err
-	}
+	r.repositories.Message.PostAndPublish(ctx, message)
 
-	r.redisClient.Publish(ctx, redis.PostMessagesSubscription, messageJson)
-
-	return message, nil
+	return r.presenter.Message(message), nil
 }
 
 // Messages is the resolver for the messages field.
 func (r *queryResolver) Messages(ctx context.Context) ([]*gmodel.Message, error) {
-	cmd := r.redisClient.LRange(ctx, redis.KeyMessages, 0, -1)
-	err := cmd.Err()
+	messages, err := r.repositories.Message.FindAll(ctx)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
-
-	result, err := cmd.Result()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	var messages []*gmodel.Message
-	for _, messageJson := range result {
-		m := &gmodel.Message{}
-		_ = json.Unmarshal([]byte(messageJson), &m)
-		messages = append(messages, m)
-	}
-
-	return messages, nil
+	return r.presenter.Messages(messages), nil
 }
 
 // MessagePosted is the resolver for the messagePosted field.

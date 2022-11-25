@@ -27,7 +27,7 @@ func InitRouter() *gin.Engine {
 	db := rdb.New()
 	client := redis.New()
 	subscribers := subscriber.New(client)
-	repositories := gateway.NewRepositories(db)
+	repositories := gateway.NewRepositories(db, client)
 	presenterPresenter := presenter.New()
 	resolverResolver := resolver.New(db, client, subscribers, repositories, presenterPresenter)
 	engine := server.NewRouter(resolverResolver)

@@ -18,9 +18,9 @@ func (p *Presenter) Todo(todo *model.Todo) *gmodel.Todo {
 }
 
 func (p *Presenter) Todos(todos []*model.Todo) []*gmodel.Todo {
-	var operators []*gmodel.Todo
+	var result []*gmodel.Todo
 	for _, v := range todos {
-		operators = append(operators, p.Todo(v))
+		result = append(result, p.Todo(v))
 	}
-	return operators
+	return result
 }
