@@ -6,8 +6,10 @@ package resolver
 import (
 	"context"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/graph/generated"
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/loader"
 )
 
 // CreateTodo is the resolver for the createTodo field.
@@ -31,3 +33,20 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
 	}
 	return r.presenter.Todos(todos), nil
 }
+
+// User is the resolver for the user field.
+func (r *todoResolver) User(ctx context.Context, obj *gmodel.Todo) (*gmodel.User, error) {
+	user, err := loader.LoadUser(ctx, obj.User.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &gmodel.User{
+		ID:   obj.User.ID,
+		Name: user.Name,
+	}, nil
+}
+
+// Todo returns generated.TodoResolver implementation.
+func (r *Resolver) Todo() generated.TodoResolver { return &todoResolver{r} }
+
+type todoResolver struct{ *Resolver }

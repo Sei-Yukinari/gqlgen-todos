@@ -2,7 +2,7 @@ type Todo {
   id: ID!
   text: String!
   done: Boolean!
-  user: User!
+  user: User! @goField(forceResolver: true)
 }
 
 input NewTodo {

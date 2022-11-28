@@ -23,3 +23,6 @@ type NoopPayload {
 type Subscription {
   noop(input: NoopInput): NoopPayload
 }
+
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+  | FIELD_DEFINITION

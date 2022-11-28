@@ -1,6 +1,8 @@
 package presenter
 
 import (
+	"strconv"
+
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 )
@@ -11,8 +13,8 @@ func (p *Presenter) Todo(todo *model.Todo) *gmodel.Todo {
 		Text: todo.Text,
 		Done: todo.Done,
 		User: &gmodel.User{
-			ID:   "aaa",
-			Name: "bbb",
+			ID:   strconv.Itoa(todo.UserID),
+			Name: "",
 		},
 	}
 }

@@ -16,7 +16,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	rdb          *gorm.DB
+	Rdb          *gorm.DB
 	redis        *redis.Client
 	subscribers  subscriber.Subscribers
 	repositories *gateway.Repositories
@@ -33,7 +33,7 @@ func New(
 	presenter *presenter.Presenter,
 ) *Resolver {
 	return &Resolver{
-		rdb:          rdb,
+		Rdb:          rdb,
 		redis:        redis,
 		subscribers:  subscribers,
 		repositories: repositories,
