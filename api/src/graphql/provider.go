@@ -1,6 +1,7 @@
 package graphql
 
 import (
+	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/loader"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/resolver"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/subscriber"
 	"github.com/google/wire"
@@ -9,4 +10,5 @@ import (
 var Set = wire.NewSet(
 	resolver.New,
 	subscriber.New,
+	loader.New,
 )

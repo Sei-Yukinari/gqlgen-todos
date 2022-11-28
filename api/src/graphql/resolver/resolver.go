@@ -3,7 +3,6 @@ package resolver
 import (
 	"sync"
 
-	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/subscriber"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
@@ -16,12 +15,11 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	Rdb          *gorm.DB
+	rdb          *gorm.DB
 	redis        *redis.Client
 	subscribers  subscriber.Subscribers
 	repositories *gateway.Repositories
 	presenter    *presenter.Presenter
-	messages     []*gmodel.Message
 	mutex        sync.Mutex
 }
 
@@ -33,7 +31,7 @@ func New(
 	presenter *presenter.Presenter,
 ) *Resolver {
 	return &Resolver{
-		Rdb:          rdb,
+		rdb:          rdb,
 		redis:        redis,
 		subscribers:  subscribers,
 		repositories: repositories,

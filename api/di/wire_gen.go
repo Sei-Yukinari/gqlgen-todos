@@ -9,6 +9,7 @@ package di
 import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/loader"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/resolver"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/subscriber"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure"
@@ -30,7 +31,9 @@ func InitRouter() *gin.Engine {
 	repositories := gateway.NewRepositories(db, client)
 	presenterPresenter := presenter.New()
 	resolverResolver := resolver.New(db, client, subscribers, repositories, presenterPresenter)
-	engine := server.NewRouter(resolverResolver)
+	loaders := loader.New(repositories)
+	v := server.NewMiddleware(loaders)
+	engine := server.NewRouter(resolverResolver, v)
 	return engine
 }
 

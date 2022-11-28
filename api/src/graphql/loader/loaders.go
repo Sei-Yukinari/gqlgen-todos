@@ -6,7 +6,6 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/gin-gonic/gin"
 	"github.com/graph-gophers/dataloader"
-	"gorm.io/gorm"
 )
 
 type ctxKey string
@@ -20,11 +19,10 @@ type Loaders struct {
 	UserLoader *dataloader.Loader
 }
 
-// NewLoaders Loadersの初期化メソッド
-func NewLoaders(rdb *gorm.DB) *Loaders {
+func New(repositories *gateway.Repositories) *Loaders {
 	// define the data loader
 	userLoader := &UserLoader{
-		userRepository: gateway.NewUser(rdb),
+		userRepository: repositories.User,
 	}
 	loaders := &Loaders{
 		UserLoader: dataloader.NewBatchedLoader(userLoader.BatchGetUsers),

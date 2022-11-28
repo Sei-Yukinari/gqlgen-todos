@@ -1,20 +1,11 @@
 package server
 
 import (
-	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/loader"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/resolver"
-	"github.com/Sei-Yukinari/gqlgen-todos/src/middleware"
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(rsl *resolver.Resolver) *gin.Engine {
-
-	middlewares := []gin.HandlerFunc{
-		middleware.NewCors(),
-		//TODO
-		loader.InjectLoaders(loader.NewLoaders(rsl.Rdb)),
-	}
-
+func NewRouter(rsl *resolver.Resolver, middlewares []gin.HandlerFunc) *gin.Engine {
 	r := gin.Default()
 	r.GET("/", playgroundHandler())
 	for _, m := range middlewares {

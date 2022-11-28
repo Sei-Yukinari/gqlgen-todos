@@ -10,5 +10,6 @@ import (
 var Set = wire.NewSet(
 	redis.New,
 	rdb.New,
+	server.NewMiddleware,
 	server.NewRouter,
 )
