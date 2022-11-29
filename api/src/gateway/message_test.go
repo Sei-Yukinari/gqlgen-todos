@@ -12,9 +12,8 @@ import (
 )
 
 func TestMessage_PostAndPublish(t *testing.T) {
-	t.Parallel()
-	redis := test.SetupRedis(t)
-	repo := NewMessage(redis)
+	redis := test.SetupRedis(t, redisContainer)
+
 	t.Run("Post And Publish", func(t *testing.T) {
 		actual := &model.Message{
 			ID:        "1",
@@ -22,7 +21,7 @@ func TestMessage_PostAndPublish(t *testing.T) {
 			Text:      "Dummy",
 			CreatedAt: time.Now(),
 		}
-
+		repo := NewMessage(redis)
 		res, err := repo.PostAndPublish(ctx, actual)
 		assert.NoError(t, err)
 		assert.Equal(t, res, actual)
@@ -30,8 +29,7 @@ func TestMessage_PostAndPublish(t *testing.T) {
 }
 
 func TestMessage_Subscribe(t *testing.T) {
-	t.Parallel()
-	redis := test.SetupRedis(t)
+	redis := test.SetupRedis(t, redisContainer)
 	repo := NewMessage(redis)
 
 	t.Run("Subscribe", func(t *testing.T) {
@@ -58,8 +56,7 @@ func TestMessage_Subscribe(t *testing.T) {
 }
 
 func TestMessage_FindAll(t *testing.T) {
-	t.Parallel()
-	redis := test.SetupRedis(t)
+	redis := test.SetupRedis(t, redisContainer)
 	repo := NewMessage(redis)
 	t.Run("GET Message ALL", func(t *testing.T) {
 		actual := []*model.Message{

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"testing"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -20,7 +19,7 @@ const (
 	MysqlDATABASE string = "test"
 )
 
-func CreateMySQLContainer(pool *dockertest.Pool, sqlFileNames []string) *dockertest.Resource {
+func CreateMySQLContainer(sqlFileNames []string) *dockertest.Resource {
 	// mysql options
 	runOptions := &dockertest.RunOptions{
 		Repository: "mysql",
@@ -58,7 +57,7 @@ func mountsFile(files []string) []string {
 	return m
 }
 
-func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool, t *testing.T) *gorm.DB {
+func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool) *gorm.DB {
 
 	var db *gorm.DB
 	var err error
@@ -87,7 +86,7 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool,
 	return db
 }
 
-func CreateRedisContainer(pool *dockertest.Pool) *dockertest.Resource {
+func CreateRedisContainer() *dockertest.Resource {
 	resource, err := pool.Run("redis", "3.2", nil)
 	if err != nil {
 		log.Fatalf("Could not start resource: %s", err)
@@ -96,7 +95,7 @@ func CreateRedisContainer(pool *dockertest.Pool) *dockertest.Resource {
 	return resource
 }
 
-func ConnectRedisContainer(resource *dockertest.Resource, pool *dockertest.Pool, t *testing.T) *redis.Client {
+func ConnectRedisContainer(resource *dockertest.Resource, pool *dockertest.Pool) *redis.Client {
 	var client *redis.Client
 	if err := pool.Retry(func() error {
 		client = redis.NewClient(
@@ -110,4 +109,11 @@ func ConnectRedisContainer(resource *dockertest.Resource, pool *dockertest.Pool,
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 	return client
+}
+
+func CloseContainer(resource *dockertest.Resource) {
+	// stop container
+	if err := pool.Purge(resource); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
 }

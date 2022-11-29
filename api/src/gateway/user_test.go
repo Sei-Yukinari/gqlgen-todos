@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"log"
 	"testing"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
@@ -9,8 +10,7 @@ import (
 )
 
 func TestUser_FindByIDs(t *testing.T) {
-	t.Parallel()
-	rdb := test.SetupRDB(t)
+	rdb := test.SetupRDB(t, mysqlContainer)
 	t.Run("GET Users By IDs", func(t *testing.T) {
 		actual := []*model.User{
 			{
@@ -22,10 +22,13 @@ func TestUser_FindByIDs(t *testing.T) {
 				Name: "Dummy2",
 			},
 		}
-		test.Seeds(rdb,
+		err := test.Seeds(rdb,
 			[]interface{}{
 				actual,
 			})
+		if err != nil {
+			log.Fatalf("fail seed data: %s", err)
+		}
 		repo := NewUser(rdb)
 		res, err := repo.FindByIDs(ctx, []int{1, 2})
 		assert.NoError(t, err)

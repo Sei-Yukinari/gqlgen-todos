@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"log"
 	"testing"
 
@@ -23,20 +24,19 @@ func newPool() *dockertest.Pool {
 	return pool
 }
 
-func SetupRDB(t *testing.T) *gorm.DB {
-	resource := CreateMySQLContainer(pool, []string{"todos.sql", "users.sql"})
-	rdb := ConnectMySQLContainer(resource, pool, t)
+func SetupRDB(t *testing.T, resource *dockertest.Resource) *gorm.DB {
+	rdb := ConnectMySQLContainer(resource, pool)
+	tx := rdb.Begin()
 	t.Cleanup(func() {
-		pool.Purge(resource)
+		tx.Rollback()
 	})
-	return rdb
+	return tx
 }
 
-func SetupRedis(t *testing.T) *redis.Client {
-	resource := CreateRedisContainer(pool)
-	redis := ConnectRedisContainer(resource, pool, t)
+func SetupRedis(t *testing.T, resource *dockertest.Resource) *redis.Client {
+	cache := ConnectRedisContainer(resource, pool)
 	t.Cleanup(func() {
-		pool.Purge(resource)
+		cache.FlushDB(context.Background())
 	})
-	return redis
+	return cache
 }

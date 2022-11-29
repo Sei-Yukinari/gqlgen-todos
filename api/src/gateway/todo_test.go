@@ -1,9 +1,7 @@
 package gateway
 
 import (
-	"context"
-	"fmt"
-	"os"
+	"log"
 	"testing"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
@@ -11,20 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var ctx context.Context
-
-func TestMain(m *testing.M) {
-	ctx = context.Background()
-
-	code := m.Run()
-
-	os.Exit(code)
-}
-
 func TestTodo_Create(t *testing.T) {
-	rdb := test.SetupRDB(t)
+	rdb := test.SetupRDB(t, mysqlContainer)
 	t.Run("Create TODO", func(t *testing.T) {
-		t.Parallel()
 		actual := &model.Todo{
 			ID:     1,
 			Text:   "Dummy",
@@ -40,8 +27,7 @@ func TestTodo_Create(t *testing.T) {
 }
 
 func TestTodo_FindAll(t *testing.T) {
-	t.Parallel()
-	rdb := test.SetupRDB(t)
+	rdb := test.SetupRDB(t, mysqlContainer)
 	t.Run("Get TODO ALL", func(t *testing.T) {
 		actual := []model.Todo{
 			{
@@ -58,16 +44,16 @@ func TestTodo_FindAll(t *testing.T) {
 			},
 		}
 
-		test.Seeds(rdb,
+		err := test.Seeds(rdb,
 			[]interface{}{
 				actual,
 			})
+		if err != nil {
+			log.Fatalf("fail seed data: %s", err)
+		}
 		repo := NewTodo(rdb)
 		res, err := repo.FindAll(ctx)
 		assert.Equal(t, err, nil)
-		fmt.Println(len(res))
-		fmt.Println(len(actual))
-
 		assert.Equal(t, len(res), len(actual))
 	})
 }
