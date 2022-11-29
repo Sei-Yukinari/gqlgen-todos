@@ -8,20 +8,20 @@ import (
 	"sync"
 
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
-	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/repository"
 )
 
 type MessageSubscriber struct {
-	client    *redis.Client
-	usersChan map[string]chan<- *gmodel.Message
-	mutex     sync.Mutex
+	repository repository.MessageRepository
+	usersChan  map[string]chan<- *gmodel.Message
+	mutex      sync.Mutex
 }
 
-func NewMessage(ctx context.Context, client *redis.Client) *MessageSubscriber {
+func NewMessage(ctx context.Context, repository repository.MessageRepository) *MessageSubscriber {
 	subscriber := &MessageSubscriber{
-		client:    client,
-		usersChan: map[string]chan<- *gmodel.Message{},
-		mutex:     sync.Mutex{},
+		repository: repository,
+		usersChan:  map[string]chan<- *gmodel.Message{},
+		mutex:      sync.Mutex{},
 	}
 
 	subscriber.Start(ctx)
@@ -30,7 +30,7 @@ func NewMessage(ctx context.Context, client *redis.Client) *MessageSubscriber {
 }
 
 func (s *MessageSubscriber) Start(ctx context.Context) {
-	pubsub := s.client.Subscribe(ctx, redis.PostMessagesSubscription)
+	pubsub := s.repository.Subscribe(ctx)
 	go func() {
 		pubsubCh := pubsub.Channel()
 		for msg := range pubsubCh {

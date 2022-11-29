@@ -8,6 +8,7 @@ import (
 )
 
 type Client = redis.Client
+type PubSub = redis.PubSub
 
 func New() *Client {
 	client := redis.NewClient(&redis.Options{

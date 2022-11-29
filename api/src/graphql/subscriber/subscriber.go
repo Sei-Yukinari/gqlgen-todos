@@ -3,15 +3,16 @@ package subscriber
 import (
 	"context"
 
-	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 )
 
 type Subscribers struct {
-	Message *MessageSubscriber
+	Message      *MessageSubscriber
+	repositories *gateway.Repositories
 }
 
-func New(redis *redis.Client) Subscribers {
+func New(repositories *gateway.Repositories) Subscribers {
 	return Subscribers{
-		Message: NewMessage(context.Background(), redis),
+		Message: NewMessage(context.Background(), repositories.Message),
 	}
 }

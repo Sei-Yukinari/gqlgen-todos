@@ -37,6 +37,10 @@ func (m Message) PostAndPublish(ctx context.Context, message *model.Message) (*m
 	return message, nil
 }
 
+func (m Message) Subscribe(ctx context.Context) *redis.PubSub {
+	return m.redis.Subscribe(ctx, redis.PostMessagesSubscription)
+}
+
 func (m Message) FindAll(ctx context.Context) ([]*model.Message, error) {
 	cmd := m.redis.LRange(ctx, KeyMessages, 0, -1)
 	err := cmd.Err()
