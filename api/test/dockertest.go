@@ -99,18 +99,15 @@ func CreateRedisContainer(pool *dockertest.Pool) *dockertest.Resource {
 func ConnectRedisContainer(resource *dockertest.Resource, pool *dockertest.Pool, t *testing.T) *redis.Client {
 	var client *redis.Client
 	if err := pool.Retry(func() error {
-		client = redis.NewClient(&redis.Options{
-			Addr: fmt.Sprintf("localhost:%s", resource.GetPort("6379/tcp")),
-		})
+		client = redis.NewClient(
+			&redis.Options{
+				Addr: fmt.Sprintf("localhost:%s",
+					resource.GetPort("6379/tcp")),
+			})
 
 		return client.Ping(context.Background()).Err()
 	}); err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
-
-	// When you're done, kill and remove the container
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
-	}
-	return nil
+	return client
 }

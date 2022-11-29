@@ -28,13 +28,17 @@ const (
 )
 
 func (m Message) PostAndPublish(ctx context.Context, message *model.Message) (*model.Message, error) {
-	messageJson, _ := json.Marshal(message)
-	if err := m.redis.LPush(ctx, KeyMessages, string(messageJson)).Err(); err != nil {
+	buf, _ := json.Marshal(message)
+	if err := m.redis.LPush(ctx, KeyMessages, string(buf)).Err(); err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
-	m.redis.Publish(ctx, PostMessagesSubscription, messageJson)
+	m.publish(ctx, buf)
 	return message, nil
+}
+
+func (m Message) publish(ctx context.Context, buf []byte) {
+	m.redis.Publish(ctx, PostMessagesSubscription, buf)
 }
 
 func (m Message) Subscribe(ctx context.Context) *redis.PubSub {
