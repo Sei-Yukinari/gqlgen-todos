@@ -9,7 +9,7 @@ import (
 
 func (p *Presenter) Todo(todo *model.Todo) *gmodel.Todo {
 	return &gmodel.Todo{
-		ID:   todo.ID,
+		ID:   strconv.Itoa(todo.ID),
 		Text: todo.Text,
 		Done: todo.Done,
 		User: &gmodel.User{
