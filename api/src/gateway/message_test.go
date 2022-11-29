@@ -13,7 +13,6 @@ import (
 
 func TestMessage_PostAndPublish(t *testing.T) {
 	redis := test.SetupRedis(t, redisContainer)
-
 	t.Run("Post And Publish", func(t *testing.T) {
 		actual := &model.Message{
 			ID:        "1",
@@ -30,8 +29,6 @@ func TestMessage_PostAndPublish(t *testing.T) {
 
 func TestMessage_Subscribe(t *testing.T) {
 	redis := test.SetupRedis(t, redisContainer)
-	repo := NewMessage(redis)
-
 	t.Run("Subscribe", func(t *testing.T) {
 		actual := &model.Message{
 			ID:        "1",
@@ -39,7 +36,7 @@ func TestMessage_Subscribe(t *testing.T) {
 			Text:      "Dummy",
 			CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
 		}
-
+		repo := NewMessage(redis)
 		pubsub := repo.Subscribe(ctx)
 
 		_, err := repo.PostAndPublish(ctx, actual)
@@ -57,7 +54,6 @@ func TestMessage_Subscribe(t *testing.T) {
 
 func TestMessage_FindAll(t *testing.T) {
 	redis := test.SetupRedis(t, redisContainer)
-	repo := NewMessage(redis)
 	t.Run("GET Message ALL", func(t *testing.T) {
 		actual := []*model.Message{
 			{
@@ -73,7 +69,7 @@ func TestMessage_FindAll(t *testing.T) {
 				CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
 			},
 		}
-
+		repo := NewMessage(redis)
 		_, err := repo.PostAndPublish(ctx, actual[0])
 		assert.NoError(t, err)
 		_, err = repo.PostAndPublish(ctx, actual[1])
