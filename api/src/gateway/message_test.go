@@ -34,7 +34,7 @@ func TestMessage_Subscribe(t *testing.T) {
 			ID:        "1",
 			User:      "Dummy User",
 			Text:      "Dummy",
-			CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
+			CreatedAt: time.Now().UTC(),
 		}
 		repo := NewMessage(redis)
 		pubsub := repo.Subscribe(ctx)
