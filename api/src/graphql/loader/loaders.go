@@ -31,7 +31,7 @@ func New(repositories *gateway.Repositories) *Loaders {
 }
 
 // InjectLoaders LoadersをcontextにインジェクトするHTTPミドルウェア
-func InjectLoaders(loaders *Loaders) gin.HandlerFunc {
+func InjectInContext(loaders *Loaders) gin.HandlerFunc {
 	loaders.UserLoader.ClearAll()
 	return func(c *gin.Context) {
 		nextCtx := context.WithValue(c.Request.Context(), loadersKey, loaders)
@@ -41,6 +41,6 @@ func InjectLoaders(loaders *Loaders) gin.HandlerFunc {
 }
 
 // GetLoaders ContextからLoadersを取得する
-func GetLoaders(ctx context.Context) *Loaders {
+func FromContext(ctx context.Context) *Loaders {
 	return ctx.Value(loadersKey).(*Loaders)
 }

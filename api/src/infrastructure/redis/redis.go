@@ -2,8 +2,8 @@ package redis
 
 import (
 	"context"
-	"log"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -19,10 +19,10 @@ func New() *Client {
 	err := client.Ping(context.Background()).Err()
 
 	if err != nil {
-		log.Fatalf("failed to connect redis:%v\n", err)
+		logger.Fatalf("failed to connect redis:%v\n", err)
 	}
 
-	log.Println("success to connect redis!")
+	logger.Info("success to connect redis!")
 
 	return client
 }

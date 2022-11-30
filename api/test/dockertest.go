@@ -3,10 +3,10 @@ package test
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/go-redis/redis/v8"
 	"github.com/ory/dockertest/v3"
 	"gorm.io/driver/mysql"
@@ -35,7 +35,7 @@ func CreateMySQLContainer(sqlFileNames []string) *dockertest.Resource {
 	// start container
 	resource, err := pool.RunWithOptions(runOptions)
 	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
+		logger.Fatalf("Could not start resource: %s", err)
 	}
 
 	return resource
@@ -81,7 +81,7 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 		}
 		return sqlDB.Ping()
 	}); err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		logger.Fatalf("Could not connect to docker: %s", err)
 	}
 	return db
 }
@@ -89,9 +89,8 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 func CreateRedisContainer() *dockertest.Resource {
 	resource, err := pool.Run("redis", "3.2", nil)
 	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
+		logger.Fatalf("Could not start resource: %s", err)
 	}
-
 	return resource
 }
 
@@ -106,7 +105,7 @@ func ConnectRedisContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 
 		return client.Ping(context.Background()).Err()
 	}); err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		logger.Fatalf("Could not connect to docker: %s", err)
 	}
 	return client
 }
@@ -114,6 +113,6 @@ func ConnectRedisContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 func CloseContainer(resource *dockertest.Resource) {
 	// stop container
 	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+		logger.Fatalf("Could not purge resource: %s", err)
 	}
 }

@@ -1,10 +1,10 @@
 package gateway
 
 import (
-	"log"
 	"testing"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,7 +49,7 @@ func TestTodo_FindAll(t *testing.T) {
 				actual,
 			})
 		if err != nil {
-			log.Fatalf("fail seed data: %s", err)
+			logger.Fatalf("fail seed data: %s", err)
 		}
 		repo := NewTodo(rdb)
 		res, err := repo.FindAll(ctx)

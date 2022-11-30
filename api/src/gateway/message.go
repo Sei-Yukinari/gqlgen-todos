@@ -3,7 +3,6 @@ package gateway
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/repository"
@@ -54,7 +53,6 @@ func (m Message) FindAll(ctx context.Context) ([]*model.Message, apperror.AppErr
 
 	result, err := cmd.Result()
 	if err != nil {
-		log.Println(err)
 		return nil, apperror.Wrap(err)
 	}
 	var messages []*model.Message

@@ -2,9 +2,9 @@ package test
 
 import (
 	"context"
-	"log"
 	"testing"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/ory/dockertest/v3"
 	"gorm.io/gorm"
@@ -19,7 +19,7 @@ func init() {
 func newPool() *dockertest.Pool {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		logger.Fatalf("Could not connect to docker: %s", err)
 	}
 	return pool
 }

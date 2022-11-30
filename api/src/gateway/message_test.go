@@ -2,11 +2,11 @@ package gateway
 
 import (
 	"encoding/json"
-	"log"
 	"testing"
 	"time"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -46,7 +46,7 @@ func TestMessage_Subscribe(t *testing.T) {
 		expected := &model.Message{}
 		err := json.Unmarshal([]byte(res.Payload), expected)
 		if err != nil {
-			log.Printf(err.Error())
+			logger.Warn(err.Error())
 		}
 		assert.Equal(t, expected, actual)
 	})

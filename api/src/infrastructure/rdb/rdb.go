@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 var dbInstance *gorm.DB
@@ -24,9 +25,9 @@ func New() *gorm.DB {
 		},
 	})
 	if err != nil {
-		log.Fatalf("db connection error: %v", err)
+		logger.Fatalf("db connection error: %v", err)
 	} else {
-		log.Println("success to connect db!")
+		logger.Info("success to connect db!")
 		dbConfig, _ := conn.DB()
 		dbConfig.SetMaxOpenConns(0)
 		dbConfig.SetMaxIdleConns(2)
@@ -48,14 +49,14 @@ func connString() string {
 	)
 }
 
-func newLogger() logger.Interface {
-	conf := logger.Config{
+func newLogger() gormlogger.Interface {
+	conf := gormlogger.Config{
 		SlowThreshold: time.Second,
 		Colorful:      false,
-		LogLevel:      logger.Info,
+		LogLevel:      gormlogger.Info,
 	}
 
-	return logger.New(
+	return gormlogger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		conf,
 	)

@@ -7,8 +7,7 @@ import (
 )
 
 type Subscribers struct {
-	Message      *MessageSubscriber
-	repositories *gateway.Repositories
+	Message *MessageSubscriber
 }
 
 func New(repositories *gateway.Repositories) Subscribers {
