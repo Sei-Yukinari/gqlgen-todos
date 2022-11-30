@@ -4,11 +4,15 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/util/apperror"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 func HandleError(ctx context.Context, err apperror.AppError) {
+
+	logger.Warnf("Error : %s, Message : %s", err.Error(), err.InfoMessage())
+
 	switch err.Code() {
 	case apperror.Internal:
 		AddErr(ctx, GetInfoMessage(err), err.Code())

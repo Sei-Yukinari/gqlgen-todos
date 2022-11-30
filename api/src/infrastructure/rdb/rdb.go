@@ -52,12 +52,12 @@ func connString() string {
 func newLogger() gormlogger.Interface {
 	conf := gormlogger.Config{
 		SlowThreshold: time.Second,
-		Colorful:      false,
+		Colorful:      true,
 		LogLevel:      gormlogger.Info,
 	}
 
 	return gormlogger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		log.New(os.Stdout, "[GORM]", log.Lmsgprefix),
 		conf,
 	)
 }
