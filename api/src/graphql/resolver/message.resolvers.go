@@ -9,6 +9,8 @@ import (
 
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	gerror "github.com/Sei-Yukinari/gqlgen-todos/src/graphql/error"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/util/apperror"
 	"github.com/segmentio/ksuid"
 )
 
@@ -21,21 +23,25 @@ func (r *mutationResolver) PostMessage(ctx context.Context, input *gmodel.PostMe
 		Text:      input.Text,
 	}
 
-	r.repositories.Message.PostAndPublish(ctx, message)
+	_, err := r.Repositories.Message.PostAndPublish(ctx, message)
+	if err != nil {
+		gerror.HandleError(ctx, apperror.Wrap(err))
+		return nil, nil
+	}
 
-	return r.presenter.Message(message), nil
+	return r.Presenter.Message(message), nil
 }
 
 // Messages is the resolver for the messages field.
 func (r *queryResolver) Messages(ctx context.Context) ([]*gmodel.Message, error) {
-	messages, err := r.repositories.Message.FindAll(ctx)
+	messages, err := r.Repositories.Message.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return r.presenter.Messages(messages), nil
+	return r.Presenter.Messages(messages), nil
 }
 
 // MessagePosted is the resolver for the messagePosted field.
 func (r *subscriptionResolver) MessagePosted(ctx context.Context, user string) (<-chan *gmodel.Message, error) {
-	return r.subscribers.Message.Subscribe(ctx, user), nil
+	return r.Subscribers.Message.Subscribe(ctx, user), nil
 }

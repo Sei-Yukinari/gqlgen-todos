@@ -20,21 +20,21 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input gmodel.NewTodo)
 		Text: input.Text,
 		Done: false,
 	}
-	t, err := r.repositories.Todo.Create(ctx, &todo)
+	t, err := r.Repositories.Todo.Create(ctx, &todo)
 	if err != nil {
 		return nil, err
 	}
-	return r.presenter.Todo(t), nil
+	return r.Presenter.Todo(t), nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
-	todos, err := r.repositories.Todo.FindAll(ctx)
+	todos, err := r.Repositories.Todo.FindAll(ctx)
 	if err != nil {
 		gerror.HandleError(ctx, apperror.Wrap(err))
 		return nil, nil
 	}
-	return r.presenter.Todos(todos), nil
+	return r.Presenter.Todos(todos), nil
 }
 
 // User is the resolver for the user field.
@@ -42,6 +42,9 @@ func (r *todoResolver) User(ctx context.Context, obj *gmodel.Todo) (*gmodel.User
 	user, err := loader.LoadUser(ctx, obj.User.ID)
 	if err != nil {
 		gerror.HandleError(ctx, apperror.Wrap(err))
+		return nil, nil
+	}
+	if user == nil {
 		return nil, nil
 	}
 	return &gmodel.User{

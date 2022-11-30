@@ -1,4 +1,4 @@
-package gateway
+package gateway_test
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,7 @@ func TestMessage_PostAndPublish(t *testing.T) {
 			Text:      "Dummy",
 			CreatedAt: time.Now(),
 		}
-		repo := NewMessage(redis)
+		repo := gateway.NewMessage(redis)
 		res, err := repo.PostAndPublish(ctx, actual)
 		assert.NoError(t, err)
 		assert.Equal(t, res, actual)
@@ -36,7 +37,7 @@ func TestMessage_Subscribe(t *testing.T) {
 			Text:      "Dummy",
 			CreatedAt: time.Now().UTC(),
 		}
-		repo := NewMessage(redis)
+		repo := gateway.NewMessage(redis)
 		pubsub := repo.Subscribe(ctx)
 
 		_, apperr := repo.PostAndPublish(ctx, actual)
@@ -69,7 +70,7 @@ func TestMessage_FindAll(t *testing.T) {
 				CreatedAt: time.Now().UTC(),
 			},
 		}
-		repo := NewMessage(redis)
+		repo := gateway.NewMessage(redis)
 		_, err := repo.PostAndPublish(ctx, actual[0])
 		assert.NoError(t, err)
 		_, err = repo.PostAndPublish(ctx, actual[1])

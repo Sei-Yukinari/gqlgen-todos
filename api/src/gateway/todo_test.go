@@ -1,9 +1,10 @@
-package gateway
+package gateway_test
 
 import (
 	"testing"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ func TestTodo_Create(t *testing.T) {
 			Done:   true,
 			UserID: 1,
 		}
-		repo := NewTodo(rdb)
+		repo := gateway.NewTodo(rdb)
 		res, err := repo.Create(ctx, actual)
 		assert.NoError(t, err)
 		assert.Equal(t, res, actual)
@@ -51,7 +52,7 @@ func TestTodo_FindAll(t *testing.T) {
 		if err != nil {
 			logger.Fatalf("fail seed data: %s", err)
 		}
-		repo := NewTodo(rdb)
+		repo := gateway.NewTodo(rdb)
 		res, err := repo.FindAll(ctx)
 		assert.Equal(t, err, nil)
 		assert.Equal(t, len(res), len(actual))

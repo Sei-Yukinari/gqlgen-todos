@@ -19,8 +19,14 @@ const (
 	MysqlDATABASE string = "test"
 )
 
-func CreateMySQLContainer(sqlFileNames []string) *dockertest.Resource {
+func CreateMySQLContainer(path string) *dockertest.Resource {
 	// mysql options
+	pwd, _ := os.Getwd()
+	initSQL := fmt.Sprintf(
+		"%s%smysql/init/:/docker-entrypoint-initdb.d/",
+		pwd,
+		path,
+	)
 	runOptions := &dockertest.RunOptions{
 		Repository: "mysql",
 		Tag:        "8.0",
@@ -29,7 +35,9 @@ func CreateMySQLContainer(sqlFileNames []string) *dockertest.Resource {
 			"MYSQL_ROOT_PASSWORD=" + MysqlPassword,
 			"MYSQL_DATABASE=" + MysqlDATABASE,
 		},
-		Mounts: mountsFile(sqlFileNames),
+		Mounts: []string{
+			initSQL,
+		},
 	}
 
 	// start container
@@ -41,21 +49,20 @@ func CreateMySQLContainer(sqlFileNames []string) *dockertest.Resource {
 	return resource
 }
 
-func mountsFile(files []string) []string {
-	pwd, _ := os.Getwd()
-	var m []string
-	for _, v := range files {
-		m = append(m,
-			fmt.Sprintf(
-				"%s/../../../mysql/init/%s:/docker-entrypoint-initdb.d/%s",
-				pwd,
-				v,
-				v,
-			),
-		)
-	}
-	return m
-}
+//func mountsFile(files []string) []string {
+//	pwd, _ := os.Getwd()
+//	fmt.Printf("aaaaaaaaaaaaaa%s\n", pwd)
+//	var m []string
+//	for _, v := range files {
+//		m = append(m,
+//			fmt.Sprintf(
+//				"%s/../../../../mysql/init/:/docker-entrypoint-initdb.d/",
+//				pwd,
+//			),
+//		)
+//	}
+//	return m
+//}
 
 func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool) *gorm.DB {
 
