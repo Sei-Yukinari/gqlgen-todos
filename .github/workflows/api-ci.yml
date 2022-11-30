@@ -5,7 +5,9 @@ on:
   push:
     paths:
       - "api/**"
-
+defaults:
+  run:
+    working-directory: api
 jobs:
   setup:
     runs-on: ubuntu-latest
