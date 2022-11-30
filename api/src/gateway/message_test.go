@@ -75,6 +75,6 @@ func TestMessage_FindAll(t *testing.T) {
 
 		msg, err := repo.FindAll(ctx)
 
-		assert.ElementsMatch(t, msg, actual)
+		assert.Equal(t, len(msg), len(actual))
 	})
 }
