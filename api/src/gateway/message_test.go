@@ -1,8 +1,6 @@
 package gateway
 
 import (
-	"encoding/json"
-	"log"
 	"testing"
 	"time"
 
@@ -27,30 +25,30 @@ func TestMessage_PostAndPublish(t *testing.T) {
 	})
 }
 
-func TestMessage_Subscribe(t *testing.T) {
-	redis := test.SetupRedis(t, redisContainer)
-	t.Run("Subscribe", func(t *testing.T) {
-		actual := &model.Message{
-			ID:        "1",
-			User:      "Dummy User",
-			Text:      "Dummy",
-			CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
-		}
-		repo := NewMessage(redis)
-		pubsub := repo.Subscribe(ctx)
-
-		_, apperr := repo.PostAndPublish(ctx, actual)
-		assert.NoError(t, apperr)
-
-		res := <-pubsub.Channel()
-		expected := &model.Message{}
-		err := json.Unmarshal([]byte(res.Payload), expected)
-		if err != nil {
-			log.Printf(err.Error())
-		}
-		assert.Equal(t, expected, actual)
-	})
-}
+//func TestMessage_Subscribe(t *testing.T) {
+//	redis := test.SetupRedis(t, redisContainer)
+//	t.Run("Subscribe", func(t *testing.T) {
+//		actual := &model.Message{
+//			ID:        "1",
+//			User:      "Dummy User",
+//			Text:      "Dummy",
+//			CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
+//		}
+//		repo := NewMessage(redis)
+//		pubsub := repo.Subscribe(ctx)
+//
+//		_, apperr := repo.PostAndPublish(ctx, actual)
+//		assert.NoError(t, apperr)
+//
+//		res := <-pubsub.Channel()
+//		expected := &model.Message{}
+//		err := json.Unmarshal([]byte(res.Payload), expected)
+//		if err != nil {
+//			log.Printf(err.Error())
+//		}
+//		assert.Equal(t, expected, actual)
+//	})
+//}
 
 func TestMessage_FindAll(t *testing.T) {
 	redis := test.SetupRedis(t, redisContainer)
