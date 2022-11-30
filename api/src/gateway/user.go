@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/repository"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/util/apperror"
 	"gorm.io/gorm"
 )
 
@@ -20,13 +21,13 @@ func NewUser(tx *gorm.DB) *User {
 
 var _ repository.User = (*User)(nil)
 
-func (u User) FindByIDs(ctx context.Context, ids []int) ([]*model.User, error) {
+func (u User) FindByIDs(ctx context.Context, ids []int) ([]*model.User, apperror.AppError) {
 	var users []*model.User
 	if err := u.tx.
 		Where("id IN ?", ids).
 		Find(&users).
 		Error; err != nil {
-		return nil, err
+		return nil, apperror.Wrap(err).SetCode(apperror.Database)
 	}
 	return users, nil
 }

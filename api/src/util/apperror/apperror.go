@@ -4,13 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Sei-Yukinari/gqlgen-todos/src/util/errorcode"
 	"golang.org/x/xerrors"
 )
 
 type AppError interface {
 	error
-	Code() errorcode.ErrorCode
+	Code() ErrorCode
 	InfoMessage() string
 }
 
@@ -18,7 +17,7 @@ type appError struct {
 	err         error
 	message     string
 	frame       xerrors.Frame
-	errCode     errorcode.ErrorCode
+	errCode     ErrorCode
 	infoMessage string
 }
 
@@ -74,19 +73,19 @@ func AsAppError(err error) *appError {
 	return nil
 }
 
-func (e *appError) SetCode(code errorcode.ErrorCode) *appError {
+func (e *appError) SetCode(code ErrorCode) *appError {
 	e.errCode = code
 	return e
 }
 
-func (err *appError) Info(infoMessage string) *appError {
-	err.infoMessage = infoMessage
-	return err
+func (e *appError) Info(infoMessage string) *appError {
+	e.infoMessage = infoMessage
+	return e
 }
 
-func (err *appError) Infof(format string, a ...interface{}) *appError {
-	err.infoMessage = fmt.Sprintf(format, a...)
-	return err
+func (e *appError) Infof(format string, a ...interface{}) *appError {
+	e.infoMessage = fmt.Sprintf(format, a...)
+	return e
 }
 
 func (e *appError) Error() string {
@@ -103,13 +102,13 @@ func (e *appError) Unwrap() error {
 	return e.err
 }
 
-func (e *appError) Code() errorcode.ErrorCode {
+func (e *appError) Code() ErrorCode {
 	var next *appError = e
 	for next.errCode == "" {
 		if err := AsAppError(next.err); err != nil {
 			next = err
 		} else {
-			return errorcode.Unknown
+			return Unknown
 		}
 	}
 	return next.errCode

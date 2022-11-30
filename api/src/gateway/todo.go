@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/repository"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/util/apperror"
 	"gorm.io/gorm"
 )
 
@@ -20,17 +21,19 @@ func NewTodo(tx *gorm.DB) *Todo {
 
 var _ repository.TodoRepository = (*Todo)(nil)
 
-func (t Todo) Create(ctx context.Context, todo *model.Todo) (*model.Todo, error) {
+func (t Todo) Create(ctx context.Context, todo *model.Todo) (*model.Todo, apperror.AppError) {
 	if err := t.tx.Create(todo).Error; err != nil {
-		return nil, err
+		return nil, apperror.Wrap(err).SetCode(apperror.Database)
 	}
 	return todo, nil
 }
 
-func (t Todo) FindAll(ctx context.Context) ([]*model.Todo, error) {
+func (t Todo) FindAll(ctx context.Context) ([]*model.Todo, apperror.AppError) {
 	var todos []*model.Todo
-	if err := t.tx.Find(&todos).Error; err != nil {
-		return nil, err
+	if err := t.tx.
+		Find(&todos).
+		Error; err != nil {
+		return nil, apperror.Wrap(err).SetCode(apperror.Database)
 	}
 	return todos, nil
 }

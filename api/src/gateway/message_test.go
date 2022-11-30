@@ -39,12 +39,12 @@ func TestMessage_Subscribe(t *testing.T) {
 		repo := NewMessage(redis)
 		pubsub := repo.Subscribe(ctx)
 
-		_, err := repo.PostAndPublish(ctx, actual)
-		assert.NoError(t, err)
+		_, apperr := repo.PostAndPublish(ctx, actual)
+		assert.NoError(t, apperr)
 
 		res := <-pubsub.Channel()
 		expected := &model.Message{}
-		err = json.Unmarshal([]byte(res.Payload), expected)
+		err := json.Unmarshal([]byte(res.Payload), expected)
 		if err != nil {
 			log.Printf(err.Error())
 		}

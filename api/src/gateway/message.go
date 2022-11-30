@@ -8,6 +8,7 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/repository"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/util/apperror"
 )
 
 type Message struct {
@@ -27,11 +28,10 @@ const (
 	KeyMessages              = "messages-key"
 )
 
-func (m Message) PostAndPublish(ctx context.Context, message *model.Message) (*model.Message, error) {
+func (m Message) PostAndPublish(ctx context.Context, message *model.Message) (*model.Message, apperror.AppError) {
 	buf, _ := json.Marshal(message)
 	if err := m.redis.LPush(ctx, KeyMessages, string(buf)).Err(); err != nil {
-		log.Println(err.Error())
-		return nil, err
+		return nil, apperror.Wrap(err)
 	}
 	m.publish(ctx, buf)
 	return message, nil
@@ -45,18 +45,17 @@ func (m Message) Subscribe(ctx context.Context) *redis.PubSub {
 	return m.redis.Subscribe(ctx, redis.PostMessagesSubscription)
 }
 
-func (m Message) FindAll(ctx context.Context) ([]*model.Message, error) {
+func (m Message) FindAll(ctx context.Context) ([]*model.Message, apperror.AppError) {
 	cmd := m.redis.LRange(ctx, KeyMessages, 0, -1)
 	err := cmd.Err()
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, apperror.Wrap(err)
 	}
 
 	result, err := cmd.Result()
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, apperror.Wrap(err)
 	}
 	var messages []*model.Message
 	for _, messageJson := range result {

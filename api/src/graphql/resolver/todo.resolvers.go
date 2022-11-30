@@ -9,7 +9,9 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/graph/generated"
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	gerror "github.com/Sei-Yukinari/gqlgen-todos/src/graphql/error"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/loader"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/util/apperror"
 )
 
 // CreateTodo is the resolver for the createTodo field.
@@ -29,7 +31,8 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input gmodel.NewTodo)
 func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
 	todos, err := r.repositories.Todo.FindAll(ctx)
 	if err != nil {
-		return nil, err
+		gerror.HandleError(ctx, apperror.Wrap(err))
+		return nil, nil
 	}
 	return r.presenter.Todos(todos), nil
 }
@@ -38,7 +41,8 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
 func (r *todoResolver) User(ctx context.Context, obj *gmodel.Todo) (*gmodel.User, error) {
 	user, err := loader.LoadUser(ctx, obj.User.ID)
 	if err != nil {
-		return nil, err
+		gerror.HandleError(ctx, apperror.Wrap(err))
+		return nil, nil
 	}
 	return &gmodel.User{
 		ID:   obj.User.ID,
