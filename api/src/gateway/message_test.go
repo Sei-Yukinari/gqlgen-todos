@@ -60,13 +60,13 @@ func TestMessage_FindAll(t *testing.T) {
 				ID:        "1",
 				User:      "Dummy User",
 				Text:      "Dummy",
-				CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
+				CreatedAt: time.Now().UTC(),
 			},
 			{
 				ID:        "2",
 				User:      "Dummy User",
 				Text:      "Dummy",
-				CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.Local),
+				CreatedAt: time.Now().UTC(),
 			},
 		}
 		repo := NewMessage(redis)
@@ -78,5 +78,6 @@ func TestMessage_FindAll(t *testing.T) {
 		msg, err := repo.FindAll(ctx)
 
 		assert.Equal(t, len(msg), len(actual))
+		assert.ElementsMatch(t, msg, actual)
 	})
 }
