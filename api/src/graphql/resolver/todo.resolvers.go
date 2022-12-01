@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/graph/generated"
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
@@ -16,9 +17,11 @@ import (
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input gmodel.NewTodo) (*gmodel.Todo, error) {
+	userID, _ := strconv.Atoi(input.UserID)
 	todo := model.Todo{
-		Text: input.Text,
-		Done: false,
+		Text:   input.Text,
+		Done:   false,
+		UserID: userID,
 	}
 	t, err := r.Repositories.Todo.Create(ctx, &todo)
 	if err != nil {
@@ -39,6 +42,12 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
 
 // User is the resolver for the user field.
 func (r *todoResolver) User(ctx context.Context, obj *gmodel.Todo) (*gmodel.User, error) {
+	if obj.User == nil {
+		return &gmodel.User{
+			ID:   "0",
+			Name: "",
+		}, nil
+	}
 	user, err := loader.LoadUser(ctx, obj.User.ID)
 	if err != nil {
 		gerror.HandleError(ctx, apperror.Wrap(err))
