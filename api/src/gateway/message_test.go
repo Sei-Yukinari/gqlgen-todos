@@ -2,6 +2,7 @@ package gateway_test
 
 import (
 	"encoding/json"
+	"sync"
 	"testing"
 	"time"
 
@@ -38,12 +39,15 @@ func TestMessage_Subscribe(t *testing.T) {
 			CreatedAt: time.Now().UTC(),
 		}
 		repo := gateway.NewMessage(redis)
+
 		pubsub := repo.Subscribe(ctx)
 
 		_, apperr := repo.PostAndPublish(ctx, actual)
 		assert.NoError(t, apperr)
-
+		var mu sync.Mutex
+		mu.Lock()
 		res := <-pubsub.Channel()
+		mu.Unlock()
 		expected := &model.Message{}
 		err := json.Unmarshal([]byte(res.Payload), expected)
 		if err != nil {
