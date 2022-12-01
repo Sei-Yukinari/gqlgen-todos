@@ -17,15 +17,6 @@ func Test_queryResolver_Todos(t *testing.T) {
 	r := test.NewResolverMock(t, mysqlContainer, redisContainer)
 	c := test.NewGqlgenClient(r)
 	t.Run("Query Todos", func(t *testing.T) {
-		q := `
-		query findTodos {
-		  todos {
-			id
-			text
-			done
-		  }
-		}
-`
 		todos := []*model.Todo{
 			{
 				ID:   1,
@@ -49,7 +40,16 @@ func Test_queryResolver_Todos(t *testing.T) {
 		var res struct {
 			Todos []*gmodel.Todo
 		}
-		c.MustPost(q, &res)
+		c.MustPost(`
+			query findTodos {
+			  todos {
+				id
+				text
+				done
+			  }
+			}`,
+			&res,
+		)
 		actual := res.Todos
 		expected := r.Presenter.Todos(todos)
 		assert.Equal(t, expected, actual)
@@ -84,7 +84,7 @@ func Test_mutationResolver_CreateTodo(t *testing.T) {
 		var res struct {
 			CreateTodo *gmodel.Todo
 		}
-		q := `
+		c.MustPost(`
 			mutation ($input: NewTodo!) {
 			  createTodo(input: $input) {
 				id
@@ -95,17 +95,12 @@ func Test_mutationResolver_CreateTodo(t *testing.T) {
 				  name
 				}
 			  }
-			}
-`
-		variables := gmodel.NewTodo{
-			Text:   "todo",
-			UserID: "1",
-		}
-
-		c.MustPost(
-			q,
+			}`,
 			&res,
-			client.Var("input", variables),
+			client.Var("input", gmodel.NewTodo{
+				Text:   "todo",
+				UserID: "1",
+			}),
 			test.InjectLoaderInContext(ctx, loaders),
 		)
 		actual := res.CreateTodo
