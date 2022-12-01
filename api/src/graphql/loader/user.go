@@ -37,13 +37,16 @@ func (u *UserLoader) BatchGetUsers(ctx context.Context, keys dataloader.Keys) []
 }
 
 func LoadUser(ctx context.Context, userID string) (*model.User, apperror.AppError) {
-	logger := logger.FromContext(ctx)
-	logger.Debugf("LoadUser(id = %s)\n", userID)
-	loaders := FromContext(ctx)
-	thunk := loaders.UserLoader.Load(ctx, dataloader.StringKey(userID))
-	result, err := thunk()
+	l := logger.FromContext(ctx)
+	l.Debugf("LoadUser(id = %s)\n", userID)
+	loaders, err := FromContext(ctx)
 	if err != nil {
 		return nil, apperror.Wrap(err)
+	}
+	thunk := loaders.UserLoader.Load(ctx, dataloader.StringKey(userID))
+	result, e := thunk()
+	if err != nil {
+		return nil, apperror.Wrap(e)
 	}
 	user := result.(*model.User)
 	logger.Debugf("return LoadUser(id = %d, name = %s)\n", user.ID, user.Name)

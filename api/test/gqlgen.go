@@ -22,10 +22,11 @@ func NewResolverMock(t *testing.T, mysqlContainer, redisContainer *dockertest.Re
 	return resolver.New(rdb, redis, s, repositories, p)
 }
 
-func NewGqlgenClient(t *testing.T, r *resolver.Resolver) *client.Client {
-	return client.New(
-		handler.NewDefaultServer(
-			generated.NewExecutableSchema(generated.Config{Resolvers: r}),
+func NewGqlgenClient(r *resolver.Resolver) *client.Client {
+	srv := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{Resolvers: r},
 		),
 	)
+	return client.New(srv)
 }
