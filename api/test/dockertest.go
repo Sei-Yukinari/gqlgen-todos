@@ -49,21 +49,6 @@ func CreateMySQLContainer(path string) *dockertest.Resource {
 	return resource
 }
 
-//func mountsFile(files []string) []string {
-//	pwd, _ := os.Getwd()
-//	fmt.Printf("aaaaaaaaaaaaaa%s\n", pwd)
-//	var m []string
-//	for _, v := range files {
-//		m = append(m,
-//			fmt.Sprintf(
-//				"%s/../../../../mysql/init/:/docker-entrypoint-initdb.d/",
-//				pwd,
-//			),
-//		)
-//	}
-//	return m
-//}
-
 func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool) *gorm.DB {
 
 	var db *gorm.DB

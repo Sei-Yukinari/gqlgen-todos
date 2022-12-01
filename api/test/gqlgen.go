@@ -13,18 +13,19 @@ import (
 	"github.com/ory/dockertest/v3"
 )
 
-func GqlgenClient(t *testing.T, mysqlContainer, redisContainer *dockertest.Resource) (*client.Client, *resolver.Resolver) {
+func NewResolverMock(t *testing.T, mysqlContainer, redisContainer *dockertest.Resource) *resolver.Resolver {
 	rdb := SetupRDB(t, mysqlContainer)
 	redis := SetupRedis(t, redisContainer)
 	repositories := gateway.NewRepositories(rdb, redis)
 	s := subscriber.New(repositories)
 	p := presenter.New()
-	r := resolver.New(rdb, redis, s, repositories, p)
+	return resolver.New(rdb, redis, s, repositories, p)
+}
 
-	c := client.New(
+func NewGqlgenClient(t *testing.T, r *resolver.Resolver) *client.Client {
+	return client.New(
 		handler.NewDefaultServer(
 			generated.NewExecutableSchema(generated.Config{Resolvers: r}),
 		),
 	)
-	return c, r
 }

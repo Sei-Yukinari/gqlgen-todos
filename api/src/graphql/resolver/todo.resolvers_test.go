@@ -11,7 +11,8 @@ import (
 )
 
 func Test_queryResolver_Todos(t *testing.T) {
-	c, r := test.GqlgenClient(t, mysqlContainer, redisContainer)
+	r := test.NewResolverMock(t, mysqlContainer, redisContainer)
+	c := test.NewGqlgenClient(t, r)
 	t.Run("Query Todos", func(t *testing.T) {
 		q := `
 		query findTodos {
