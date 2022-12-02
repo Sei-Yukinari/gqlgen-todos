@@ -2,7 +2,6 @@ package gateway_test
 
 import (
 	"encoding/json"
-	"sync"
 	"testing"
 	"time"
 
@@ -31,23 +30,20 @@ func TestMessage_PostAndPublish(t *testing.T) {
 
 func TestMessage_Subscribe(t *testing.T) {
 	redis := test.SetupRedis(t, redisContainer)
+	actual := &model.Message{
+		ID:        "1",
+		User:      "Dummy User",
+		Text:      "Dummy",
+		CreatedAt: time.Now().UTC(),
+	}
+	repo := gateway.NewMessage(redis)
+
+	pubsub := repo.Subscribe(ctx)
+
+	_, apperr := repo.PostAndPublish(ctx, actual)
+	assert.NoError(t, apperr)
 	t.Run("Subscribe", func(t *testing.T) {
-		actual := &model.Message{
-			ID:        "1",
-			User:      "Dummy User",
-			Text:      "Dummy",
-			CreatedAt: time.Now().UTC(),
-		}
-		repo := gateway.NewMessage(redis)
-
-		pubsub := repo.Subscribe(ctx)
-
-		_, apperr := repo.PostAndPublish(ctx, actual)
-		assert.NoError(t, apperr)
-		var mu sync.Mutex
-		mu.Lock()
 		res := <-pubsub.Channel()
-		mu.Unlock()
 		expected := &model.Message{}
 		err := json.Unmarshal([]byte(res.Payload), expected)
 		if err != nil {
