@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/client"
 	gmodel "github.com/Sei-Yukinari/gqlgen-todos/graph/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
@@ -67,8 +68,8 @@ func Test_queryResolver_Messages(t *testing.T) {
 			Text:      "Dummy Text2",
 		},
 	}
-	r.Repositories.Message.PostAndPublish(ctx, messages[0])
-	r.Repositories.Message.PostAndPublish(ctx, messages[1])
+	_, _ = r.Repositories.Message.PostAndPublish(ctx, messages[0])
+	_, _ = r.Repositories.Message.PostAndPublish(ctx, messages[1])
 	var res struct {
 		Messages []*gmodel.Message
 	}
@@ -95,4 +96,65 @@ func Test_queryResolver_Messages(t *testing.T) {
 	assert.Equal(t, expected[0].User, actual[0].User)
 	assert.Equal(t, expected[0].Text, actual[0].Text)
 	assert.Equal(t, len(expected), len(actual))
+}
+
+func Test_subscriptionResolver_MessagePosted(t *testing.T) {
+	r := test.NewResolverMock(t, mysqlContainer, redisContainer)
+	c := test.NewGqlgenClient(r)
+	//var wg sync.WaitGroup
+	//wg.Add(1)
+	go func() {
+		//defer wg.Done()
+		sub := c.Websocket(`
+			subscription($user: String!) {
+			  messagePosted(user: $user) {
+				id
+				user
+				text
+			  }
+}`,
+			client.Var("user", "Subscription User"),
+		)
+		defer func() {
+			err := sub.Close()
+			if err != nil {
+				logger.Warn(err)
+			}
+		}()
+
+		var msg struct {
+			resp struct {
+				MessagePosted *gmodel.Message
+			}
+			err error
+		}
+
+		expected := gmodel.PostMessageInput{
+			User: "Dummy User",
+			Text: "Dummy Text",
+		}
+
+		go func() {
+			var res struct {
+				PostMessage *gmodel.Message
+			}
+			err := c.Post(`
+				mutation($input: PostMessageInput) {
+				  postMessage(input:$input) {
+					id
+					user
+					text
+				  }
+}`,
+				&res,
+				client.Var("input", expected),
+			)
+			assert.NoError(t, err)
+		}()
+		msg.err = sub.Next(&msg.resp)
+		assert.NoError(t, msg.err, "sub.Next")
+		assert.Equal(t, expected.User, msg.resp.MessagePosted.User)
+		assert.Equal(t, expected.Text, msg.resp.MessagePosted.Text)
+	}()
+	//wg.Wait()
 }
