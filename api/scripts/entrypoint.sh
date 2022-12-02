@@ -3,7 +3,7 @@
 set -e
 
 # db migration
-#goose up
+goose up
 echo "migrated."
 
 # 起動
