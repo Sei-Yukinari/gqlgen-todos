@@ -39,7 +39,7 @@ func TestMessage_Subscribe(t *testing.T) {
 	repo := gateway.NewMessage(redis)
 
 	pubsub := repo.Subscribe(ctx)
-
+	time.Sleep(100 * time.Millisecond)
 	_, apperr := repo.PostAndPublish(ctx, actual)
 	assert.NoError(t, apperr)
 	t.Run("Subscribe", func(t *testing.T) {
