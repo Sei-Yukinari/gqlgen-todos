@@ -101,10 +101,7 @@ func Test_queryResolver_Messages(t *testing.T) {
 func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 	r := test.NewResolverMock(t, mysqlContainer, redisContainer)
 	c := test.NewGqlgenClient(r)
-	//var wg sync.WaitGroup
-	//wg.Add(1)
-	go func() {
-		//defer wg.Done()
+	t.Run("Subscription Message", func(t *testing.T) {
 		sub := c.Websocket(`
 			subscription($user: String!) {
 			  messagePosted(user: $user) {
@@ -134,11 +131,10 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 			Text: "Dummy Text",
 		}
 
-		go func() {
-			var res struct {
-				PostMessage *gmodel.Message
-			}
-			err := c.Post(`
+		var res struct {
+			PostMessage *gmodel.Message
+		}
+		err := c.Post(`
 				mutation($input: PostMessageInput) {
 				  postMessage(input:$input) {
 					id
@@ -146,15 +142,13 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 					text
 				  }
 }`,
-				&res,
-				client.Var("input", expected),
-			)
-			assert.NoError(t, err)
-		}()
+			&res,
+			client.Var("input", expected),
+		)
+		assert.NoError(t, err)
 		msg.err = sub.Next(&msg.resp)
 		assert.NoError(t, msg.err, "sub.Next")
 		assert.Equal(t, expected.User, msg.resp.MessagePosted.User)
 		assert.Equal(t, expected.Text, msg.resp.MessagePosted.Text)
-	}()
-	//wg.Wait()
+	})
 }
