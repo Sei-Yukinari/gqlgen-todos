@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/config"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -39,13 +40,14 @@ func New() *gorm.DB {
 }
 
 func connString() string {
+	conf := config.Conf.Db
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		"root",
-		"password",
-		"mysql",
-		"3306",
-		"dev",
+		conf.Username,
+		conf.Password,
+		conf.Host,
+		conf.Port,
+		conf.Database,
 	)
 }
 

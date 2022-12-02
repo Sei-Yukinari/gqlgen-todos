@@ -8,17 +8,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/config"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 )
 
-const defaultPort = "8080"
-
 func Run(handler *gin.Engine) {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+	port := config.Conf.App.Port
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: handler,
@@ -37,7 +33,7 @@ func Run(handler *gin.Engine) {
 	<-quit
 	logger.Warn("Shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5000)*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.Conf.App.TimeoutToGracefulShutdownMs)*time.Millisecond)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Fatalf("Server forced to shutdown:%v\n", err)

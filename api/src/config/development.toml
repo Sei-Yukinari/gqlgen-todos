@@ -1,0 +1,16 @@
+[app]
+port = 8080
+timeoutToGracefulShutdownMs = 5000
+corsOrigins = "*"
+
+[db]
+host = "localhost"
+username = "root"
+password = "password"
+database = "dev"
+port = "3306"
+
+[redis]
+addr = "redis:6379"
+password = ""
+db = 0

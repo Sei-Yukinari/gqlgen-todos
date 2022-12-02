@@ -11,16 +11,15 @@ services:
       - ./api:/app
     environment:
       - GO_ENV=development
-      - DB_USER=root
-      - DB_NAME=dev
-      - DB_PASSWORD=password
+      - APP_PORT=8080
       - DB_HOST=mysql
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+      - DB_DATABASE=dev
       - DB_PORT=3306
       - REDIS_URL=redis:6379
       - REDIS_PASSWORD=
-      - REDIS_POOLSIZEPERCPU=10
-      - REDIS_MINIDLECONNECTION=0
-      - REDIS_POOLTIMEOUTSECONDS=4
+      - REDIS_DB=0
     ports:
       - "8080:8080"
     networks:
