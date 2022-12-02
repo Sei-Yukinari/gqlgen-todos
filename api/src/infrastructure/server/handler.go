@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func graphqlHandler(resolver generated.ResolverRoot) gin.HandlerFunc {
+func NewGraphqlServer(resolver generated.ResolverRoot) *handler.Server {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	srv := handler.New(generated.NewExecutableSchema(
@@ -33,7 +33,11 @@ func graphqlHandler(resolver generated.ResolverRoot) gin.HandlerFunc {
 		},
 		KeepAlivePingInterval: 10 * time.Second,
 	})
+	return srv
+}
 
+func graphqlHandler(resolver generated.ResolverRoot) gin.HandlerFunc {
+	srv := NewGraphqlServer(resolver)
 	return func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)
 	}
