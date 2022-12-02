@@ -12,6 +12,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 RUN go install github.com/99designs/gqlgen@v0.17.20 &&  \
     go install github.com/google/wire/cmd/wire@v0.5.0 &&  \
+    go install bitbucket.org/liamstask/goose/cmd/goose@latest && \
     go install github.com/makiuchi-d/arelo@latest
 
 ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]
