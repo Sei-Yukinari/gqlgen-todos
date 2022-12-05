@@ -32,11 +32,11 @@ const (
 
 func (m *Message) PostAndPublish(ctx context.Context, message *model.Message) (*model.Message, apperror.AppError) {
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	buf, _ := json.Marshal(message)
 	if err := m.redis.LPush(ctx, KeyMessages, string(buf)).Err(); err != nil {
 		return nil, apperror.Wrap(err)
 	}
+	m.mu.Unlock()
 	m.publish(ctx, buf)
 	return message, nil
 }
