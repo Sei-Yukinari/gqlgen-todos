@@ -3,9 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
+	"github.com/Sei-Yukinari/gqlgen-todos/src/path"
 	"github.com/spf13/viper"
 )
 
@@ -45,7 +45,7 @@ func init() {
 		GoEnv = "development"
 	}
 	viper.SetConfigName(GoEnv)
-	viper.AddConfigPath(getConfigPath())
+	viper.AddConfigPath(path.GetProjectRootPath() + "/src/config")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -57,18 +57,4 @@ func init() {
 	if err := viper.Unmarshal(&Conf); err != nil {
 		panic(fmt.Errorf("failed to unmarshal err: %s \n", err))
 	}
-}
-
-const repositoryName = "gqlgen-todos"
-
-func getConfigPath() string {
-	wd, _ := os.Getwd()
-	for !strings.HasSuffix(wd, repositoryName) && !strings.HasSuffix(wd, "app") {
-		wd = filepath.Dir(wd)
-	}
-	if wd == "/app" {
-		return wd + "/src/config"
-	}
-
-	return wd + "/api/src/config"
 }

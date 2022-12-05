@@ -13,7 +13,7 @@ var mysqlContainer, redisContainer *dockertest.Resource
 
 func TestMain(m *testing.M) {
 	ctx = context.Background()
-	mysqlContainer = test.CreateMySQLContainer("/../../../")
+	mysqlContainer = test.CreateMySQLContainer()
 	redisContainer = test.CreateRedisContainer()
 	m.Run()
 	test.CloseContainer(mysqlContainer)

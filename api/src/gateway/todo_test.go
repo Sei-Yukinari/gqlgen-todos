@@ -24,7 +24,6 @@ func TestTodo_Create(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, res, actual)
 	})
-
 }
 
 func TestTodo_FindAll(t *testing.T) {

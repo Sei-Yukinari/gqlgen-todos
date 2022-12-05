@@ -2,18 +2,20 @@ package gateway_test
 
 import (
 	"encoding/json"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMessage_PostAndPublish(t *testing.T) {
-	redis := test.SetupRedis(t, redisContainer)
+	r := test.SetupRedis(t, redisContainer)
 	t.Run("Post And Publish", func(t *testing.T) {
 		actual := &model.Message{
 			ID:        "1",
@@ -21,7 +23,7 @@ func TestMessage_PostAndPublish(t *testing.T) {
 			Text:      "Dummy",
 			CreatedAt: time.Now(),
 		}
-		repo := gateway.NewMessage(redis)
+		repo := gateway.NewMessage(r)
 		res, err := repo.PostAndPublish(ctx, actual)
 		assert.NoError(t, err)
 		assert.Equal(t, res, actual)
@@ -29,17 +31,22 @@ func TestMessage_PostAndPublish(t *testing.T) {
 }
 
 func TestMessage_Subscribe(t *testing.T) {
-	redis := test.SetupRedis(t, redisContainer)
+	r := test.SetupRedis(t, redisContainer)
 	actual := &model.Message{
 		ID:        "1",
 		User:      "Dummy User",
 		Text:      "Dummy",
 		CreatedAt: time.Now().UTC(),
 	}
-	repo := gateway.NewMessage(redis)
-
-	pubsub := repo.Subscribe(ctx)
-	time.Sleep(100 * time.Millisecond)
+	repo := gateway.NewMessage(r)
+	var wg sync.WaitGroup
+	var pubsub *redis.PubSub
+	wg.Add(1)
+	go func() {
+		pubsub = repo.Subscribe(ctx)
+		defer wg.Done()
+	}()
+	wg.Wait()
 	_, apperr := repo.PostAndPublish(ctx, actual)
 	assert.NoError(t, apperr)
 	t.Run("Subscribe", func(t *testing.T) {
@@ -54,7 +61,7 @@ func TestMessage_Subscribe(t *testing.T) {
 }
 
 func TestMessage_FindAll(t *testing.T) {
-	redis := test.SetupRedis(t, redisContainer)
+	r := test.SetupRedis(t, redisContainer)
 	t.Run("GET Message ALL", func(t *testing.T) {
 		actual := []*model.Message{
 			{
@@ -70,7 +77,7 @@ func TestMessage_FindAll(t *testing.T) {
 				CreatedAt: time.Now().UTC(),
 			},
 		}
-		repo := gateway.NewMessage(redis)
+		repo := gateway.NewMessage(r)
 		_, err := repo.PostAndPublish(ctx, actual[0])
 		assert.NoError(t, err)
 		_, err = repo.PostAndPublish(ctx, actual[1])

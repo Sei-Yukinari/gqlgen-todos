@@ -3,10 +3,10 @@ package test
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/path"
 	"github.com/go-redis/redis/v8"
 	"github.com/ory/dockertest/v3"
 	"gorm.io/driver/mysql"
@@ -19,14 +19,8 @@ const (
 	MysqlDATABASE string = "test"
 )
 
-func CreateMySQLContainer(path string) *dockertest.Resource {
+func CreateMySQLContainer() *dockertest.Resource {
 	// mysql options
-	pwd, _ := os.Getwd()
-	initSQL := fmt.Sprintf(
-		"%s%smysql/init/:/docker-entrypoint-initdb.d/",
-		pwd,
-		path,
-	)
 	runOptions := &dockertest.RunOptions{
 		Repository: "mysql",
 		Tag:        "8.0",
@@ -36,7 +30,10 @@ func CreateMySQLContainer(path string) *dockertest.Resource {
 			"MYSQL_DATABASE=" + MysqlDATABASE,
 		},
 		Mounts: []string{
-			initSQL,
+			fmt.Sprintf(
+				"%s:/docker-entrypoint-initdb.d/",
+				path.GetProjectRootPath()+"/test/init/",
+			),
 		},
 	}
 
@@ -50,7 +47,6 @@ func CreateMySQLContainer(path string) *dockertest.Resource {
 }
 
 func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool) *gorm.DB {
-
 	var db *gorm.DB
 	var err error
 	dsn := fmt.Sprintf(
@@ -79,7 +75,7 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 }
 
 func CreateRedisContainer() *dockertest.Resource {
-	resource, err := pool.Run("redis", "3.2", nil)
+	resource, err := pool.Run("redis", "6.2", nil)
 	if err != nil {
 		logger.Fatalf("Could not start resource: %s", err)
 	}
