@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"encoding/json"
+	"sync"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/repository"
@@ -12,11 +13,13 @@ import (
 
 type Message struct {
 	redis *redis.Client
+	mu    sync.Mutex
 }
 
 func NewMessage(redis *redis.Client) *Message {
 	return &Message{
 		redis: redis,
+		mu:    sync.Mutex{},
 	}
 }
 
@@ -27,24 +30,28 @@ const (
 	KeyMessages              = "messages-key"
 )
 
-func (m Message) PostAndPublish(ctx context.Context, message *model.Message) (*model.Message, apperror.AppError) {
+func (m *Message) PostAndPublish(ctx context.Context, message *model.Message) (*model.Message, apperror.AppError) {
 	buf, _ := json.Marshal(message)
+	m.mu.Lock()
 	if err := m.redis.LPush(ctx, KeyMessages, string(buf)).Err(); err != nil {
 		return nil, apperror.Wrap(err)
 	}
+	m.mu.Unlock()
 	m.publish(ctx, buf)
 	return message, nil
 }
 
-func (m Message) publish(ctx context.Context, buf []byte) {
+func (m *Message) publish(ctx context.Context, buf []byte) {
+	m.mu.Lock()
 	m.redis.Publish(ctx, PostMessagesSubscription, buf)
+	m.mu.Unlock()
 }
 
-func (m Message) Subscribe(ctx context.Context) *redis.PubSub {
+func (m *Message) Subscribe(ctx context.Context) *redis.PubSub {
 	return m.redis.Subscribe(ctx, redis.PostMessagesSubscription)
 }
 
-func (m Message) FindAll(ctx context.Context) ([]*model.Message, apperror.AppError) {
+func (m *Message) FindAll(ctx context.Context) ([]*model.Message, apperror.AppError) {
 	cmd := m.redis.LRange(ctx, KeyMessages, 0, -1)
 	err := cmd.Err()
 	if err != nil {
