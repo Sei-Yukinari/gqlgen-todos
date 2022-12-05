@@ -61,6 +61,7 @@ func TestMessage_Subscribe(t *testing.T) {
 			case timeout := <-time.After(2 * time.Second):
 				assert.NotNil(t, timeout)
 				logger.Error("Timed out.")
+				return
 			}
 		}
 	})
