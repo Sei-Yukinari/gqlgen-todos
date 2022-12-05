@@ -38,6 +38,9 @@ func TestMessage_Subscribe(t *testing.T) {
 	}
 	repo := gateway.NewMessage(r)
 	pubsub := repo.Subscribe(ctx)
+	defer func() {
+		_ = pubsub.Close()
+	}()
 	logger.Info("Subscribe!")
 	_, apperr := repo.PostAndPublish(ctx, actual)
 	logger.Info("Publish!")
