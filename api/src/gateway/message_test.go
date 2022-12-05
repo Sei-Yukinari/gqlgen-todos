@@ -55,6 +55,8 @@ func TestMessage_Subscribe(t *testing.T) {
 				logger.Warn(err.Error())
 			}
 			assert.Equal(t, expected, actual)
+		case <-time.After(1 * time.Second):
+			logger.Error("Timed out.")
 		}
 	})
 }
