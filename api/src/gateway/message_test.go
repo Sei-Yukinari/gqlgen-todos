@@ -2,14 +2,12 @@ package gateway_test
 
 import (
 	"encoding/json"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/domain/model"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/gateway"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
-	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/Sei-Yukinari/gqlgen-todos/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -39,18 +37,15 @@ func TestMessage_Subscribe(t *testing.T) {
 		CreatedAt: time.Now().UTC(),
 	}
 	repo := gateway.NewMessage(r)
-	var wg sync.WaitGroup
-	var pubsub *redis.PubSub
-	wg.Add(1)
-	go func() {
-		pubsub = repo.Subscribe(ctx)
-		defer wg.Done()
-	}()
-	wg.Wait()
+	pubsub := repo.Subscribe(ctx)
+	logger.Info("Subscribe!")
 	_, apperr := repo.PostAndPublish(ctx, actual)
+	logger.Info("Publish!")
 	assert.NoError(t, apperr)
 	t.Run("Subscribe", func(t *testing.T) {
+
 		res := <-pubsub.Channel()
+		logger.Infof("Received message!%+v", res)
 		expected := &model.Message{}
 		err := json.Unmarshal([]byte(res.Payload), expected)
 		if err != nil {
