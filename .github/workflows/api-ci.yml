@@ -36,6 +36,7 @@ jobs:
       - run: make builds
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/setup-go@v3
         with:
