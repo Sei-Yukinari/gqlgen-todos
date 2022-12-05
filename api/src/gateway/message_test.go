@@ -41,22 +41,27 @@ func TestMessage_Subscribe(t *testing.T) {
 	defer func() {
 		_ = pubsub.Close()
 	}()
+
 	logger.Info("Subscribe!")
 	_, apperr := repo.PostAndPublish(ctx, actual)
 	logger.Info("Publish!")
 	assert.NoError(t, apperr)
 	t.Run("Subscribe", func(t *testing.T) {
-		select {
-		case res := <-pubsub.Channel():
-			logger.Infof("Received message!%+v", res)
-			expected := &model.Message{}
-			err := json.Unmarshal([]byte(res.Payload), expected)
-			if err != nil {
-				logger.Warn(err.Error())
+		for {
+			select {
+			case res := <-pubsub.Channel():
+				logger.Infof("Received message!%+v", res)
+				expected := &model.Message{}
+				err := json.Unmarshal([]byte(res.Payload), expected)
+				if err != nil {
+					logger.Warn(err.Error())
+				}
+				assert.Equal(t, expected, actual)
+				return
+			case timeout := <-time.After(2 * time.Second):
+				assert.NotNil(t, timeout)
+				logger.Error("Timed out.")
 			}
-			assert.Equal(t, expected, actual)
-		case <-time.After(1 * time.Second):
-			logger.Error("Timed out.")
 		}
 	})
 }
