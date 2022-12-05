@@ -118,7 +118,7 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 				logger.Warn(err)
 			}
 		}()
-
+		logger.Info("Subscribe!")
 		var msg struct {
 			resp struct {
 				MessagePosted *gmodel.Message
@@ -145,6 +145,7 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 			&res,
 			client.Var("input", expected),
 		)
+		logger.Info("Publish!")
 		assert.NoError(t, err)
 		msg.err = sub.Next(&msg.resp)
 		assert.NoError(t, msg.err, "sub.Next")
