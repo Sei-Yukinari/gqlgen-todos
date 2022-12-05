@@ -43,15 +43,16 @@ func TestMessage_Subscribe(t *testing.T) {
 	logger.Info("Publish!")
 	assert.NoError(t, apperr)
 	t.Run("Subscribe", func(t *testing.T) {
-
-		res := <-pubsub.Channel()
-		logger.Infof("Received message!%+v", res)
-		expected := &model.Message{}
-		err := json.Unmarshal([]byte(res.Payload), expected)
-		if err != nil {
-			logger.Warn(err.Error())
+		select {
+		case res := <-pubsub.Channel():
+			logger.Infof("Received message!%+v", res)
+			expected := &model.Message{}
+			err := json.Unmarshal([]byte(res.Payload), expected)
+			if err != nil {
+				logger.Warn(err.Error())
+			}
+			assert.Equal(t, expected, actual)
 		}
-		assert.Equal(t, expected, actual)
 	})
 }
 
