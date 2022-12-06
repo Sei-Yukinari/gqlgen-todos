@@ -102,7 +102,8 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 	r := test.NewResolverMock(t, mysqlContainer, redisContainer)
 	c := test.NewGqlgenClient(r)
 	t.Run("Subscription Message", func(t *testing.T) {
-		sub := c.Websocket(`
+		go func() {
+			sub := c.Websocket(`
 			subscription($user: String!) {
 			  messagePosted(user: $user) {
 				id
@@ -110,31 +111,31 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 				text
 			  }
 }`,
-			client.Var("user", "Subscription User"),
-		)
-		defer func() {
-			err := sub.Close()
-			if err != nil {
-				logger.Warn(err)
+				client.Var("user", "Subscription User"),
+			)
+			//defer func() {
+			//	err := sub.Close()
+			//	if err != nil {
+			//		logger.Warn(err)
+			//	}
+			//}()
+			logger.Info("Subscribe!")
+			var msg struct {
+				resp struct {
+					MessagePosted *gmodel.Message
+				}
+				err error
 			}
-		}()
-		logger.Info("Subscribe!")
-		var msg struct {
-			resp struct {
-				MessagePosted *gmodel.Message
-			}
-			err error
-		}
+			go func() {
+				expected := gmodel.PostMessageInput{
+					User: "Dummy User",
+					Text: "Dummy Text",
+				}
 
-		expected := gmodel.PostMessageInput{
-			User: "Dummy User",
-			Text: "Dummy Text",
-		}
-
-		var res struct {
-			PostMessage *gmodel.Message
-		}
-		err := c.Post(`
+				var res struct {
+					PostMessage *gmodel.Message
+				}
+				err := c.Post(`
 				mutation($input: PostMessageInput) {
 				  postMessage(input:$input) {
 					id
@@ -142,14 +143,16 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 					text
 				  }
 }`,
-			&res,
-			client.Var("input", expected),
-		)
-		logger.Info("Publish!")
-		assert.NoError(t, err)
-		msg.err = sub.Next(&msg.resp)
-		assert.NoError(t, msg.err, "sub.Next")
-		assert.Equal(t, expected.User, msg.resp.MessagePosted.User)
-		assert.Equal(t, expected.Text, msg.resp.MessagePosted.Text)
+					&res,
+					client.Var("input", expected),
+				)
+				logger.Info("Publish!")
+				assert.NoError(t, err)
+				msg.err = sub.Next(&msg.resp)
+				assert.NoError(t, msg.err, "sub.Next")
+				assert.Equal(t, expected.User, msg.resp.MessagePosted.User)
+				assert.Equal(t, expected.Text, msg.resp.MessagePosted.Text)
+			}()
+		}()
 	})
 }
