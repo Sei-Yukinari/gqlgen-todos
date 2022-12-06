@@ -113,12 +113,7 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 }`,
 				client.Var("user", "Subscription User"),
 			)
-			//defer func() {
-			//	err := sub.Close()
-			//	if err != nil {
-			//		logger.Warn(err)
-			//	}
-			//}()
+			defer sub.Close()
 			logger.Info("Subscribe!")
 			var msg struct {
 				resp struct {
@@ -126,12 +121,11 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 				}
 				err error
 			}
+			expected := gmodel.PostMessageInput{
+				User: "Dummy User",
+				Text: "Dummy Text",
+			}
 			go func() {
-				expected := gmodel.PostMessageInput{
-					User: "Dummy User",
-					Text: "Dummy Text",
-				}
-
 				var res struct {
 					PostMessage *gmodel.Message
 				}
@@ -148,11 +142,12 @@ func Test_subscriptionResolver_MessagePosted(t *testing.T) {
 				)
 				logger.Info("Publish!")
 				assert.NoError(t, err)
-				msg.err = sub.Next(&msg.resp)
-				assert.NoError(t, msg.err, "sub.Next")
-				assert.Equal(t, expected.User, msg.resp.MessagePosted.User)
-				assert.Equal(t, expected.Text, msg.resp.MessagePosted.Text)
+
 			}()
+			msg.err = sub.Next(&msg.resp)
+			assert.NoError(t, msg.err, "sub.Next")
+			assert.Equal(t, expected.User, msg.resp.MessagePosted.User)
+			assert.Equal(t, expected.Text, msg.resp.MessagePosted.Text)
 		}()
 	})
 }
