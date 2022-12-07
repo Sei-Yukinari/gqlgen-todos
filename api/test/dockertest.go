@@ -11,6 +11,7 @@ import (
 	"github.com/ory/dockertest/v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 const (
@@ -59,7 +60,9 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 	if err := pool.Retry(func() error {
 		// wait for container setup
 		time.Sleep(time.Second * 3)
-		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			Logger: gormlogger.Default.LogMode(gormlogger.Silent),
+		})
 		if err != nil {
 			return err
 		}
