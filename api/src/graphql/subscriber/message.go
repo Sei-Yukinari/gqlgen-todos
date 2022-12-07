@@ -32,6 +32,11 @@ func NewMessage(ctx context.Context, repository repository.MessageRepository) *M
 func (s *MessageSubscriber) Start(ctx context.Context) {
 	logger := logger.FromContext(ctx)
 	pubsub := s.repository.Subscribe(ctx)
+	defer pubsub.Close()
+	if _, err := pubsub.Receive(ctx); err != nil {
+		logger.Warn("failed to receive from control PubSub")
+		return
+	}
 	go func() {
 		pubsubCh := pubsub.Channel()
 		for msg := range pubsubCh {
@@ -51,25 +56,25 @@ func (s *MessageSubscriber) Start(ctx context.Context) {
 }
 
 func (s *MessageSubscriber) Subscribe(ctx context.Context, user string) <-chan *gmodel.Message {
-	logger := logger.FromContext(ctx)
+	l := logger.FromContext(ctx)
 	s.mutex.Lock()
 	if _, ok := s.usersChan[user]; ok {
 		err := fmt.Errorf("`%s` has already been subscribed", user)
-		logger.Warnf(err.Error())
+		l.Warnf(err.Error())
 		return nil
 	}
 	s.mutex.Unlock()
 
 	ch := make(chan *gmodel.Message, 1)
 	s.usersChan[user] = ch
-	logger.Debugf("`%s` has been subscribed!", user)
+	l.Debugf("`%s` has been subscribed!", user)
 
 	go func() {
 		<-ctx.Done()
 		s.mutex.Lock()
 		delete(s.usersChan, user)
 		s.mutex.Unlock()
-		logger.Infof("`%s` has been unsubscribed.", user)
+		l.Infof("`%s` has been unsubscribed.", user)
 	}()
 
 	return ch

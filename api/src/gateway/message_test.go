@@ -41,7 +41,10 @@ func TestMessage_Subscribe(t *testing.T) {
 	defer func() {
 		_ = pubsub.Close()
 	}()
-
+	if _, err := pubsub.Receive(ctx); err != nil {
+		logger.Warnf("failed to receive from control PubSub:%v\n", err)
+		return
+	}
 	logger.Info("Subscribe!")
 	_, apperr := repo.PostAndPublish(ctx, actual)
 	logger.Info("Publish!")

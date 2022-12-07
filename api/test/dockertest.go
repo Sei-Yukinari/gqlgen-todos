@@ -58,8 +58,6 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 		MysqlDATABASE,
 	)
 	if err := pool.Retry(func() error {
-		// wait for container setup
-		time.Sleep(time.Second * 3)
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: gormlogger.Default.LogMode(gormlogger.Silent),
 		})
@@ -70,6 +68,8 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 		if err != nil {
 			return err
 		}
+		sqlDB.SetConnMaxLifetime(10 * time.Second)
+		sqlDB.SetMaxIdleConns(0)
 		return sqlDB.Ping()
 	}); err != nil {
 		logger.Fatalf("Could not connect to docker: %s", err)
