@@ -6,7 +6,8 @@ import (
 )
 
 func NewRouter(rsl *resolver.Resolver, middlewares []gin.HandlerFunc) *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Logger())
 	r.GET("/", playgroundHandler())
 	for _, m := range middlewares {
 		r.Use(m)
