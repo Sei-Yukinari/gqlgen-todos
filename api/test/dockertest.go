@@ -35,10 +35,10 @@ func CreateMySQLContainer() *dockertest.Resource {
 			"MYSQL_DATABASE=" + MysqlDATABASE,
 		},
 		Mounts: []string{
-			//fmt.Sprintf(
-			//	"%s:/docker-entrypoint-initdb.d/",
-			//	path.GetProjectRootPath()+"/test/init/",
-			//),
+			fmt.Sprintf(
+				"%s/db/my.cnf:/etc/mysql/my.cnf",
+				path.GetProjectRootPath(),
+			),
 		},
 	}
 
@@ -121,7 +121,7 @@ func initMigrations(db *gorm.DB) {
 	driver, _ := mysql.WithInstance(instance, &mysql.Config{})
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://"+path.GetProjectRootPath()+"/db/migrations",
-		"test",
+		MysqlDATABASE,
 		driver,
 	)
 	if err != nil {
