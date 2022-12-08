@@ -3,13 +3,17 @@ package test
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/logger"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/path"
 	"github.com/go-redis/redis/v8"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/mattes/migrate/source/file"
 	"github.com/ory/dockertest/v3"
-	"gorm.io/driver/mysql"
+	gormmysql "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 )
@@ -31,10 +35,10 @@ func CreateMySQLContainer() *dockertest.Resource {
 			"MYSQL_DATABASE=" + MysqlDATABASE,
 		},
 		Mounts: []string{
-			fmt.Sprintf(
-				"%s:/docker-entrypoint-initdb.d/",
-				path.GetProjectRootPath()+"/test/init/",
-			),
+			//fmt.Sprintf(
+			//	"%s:/docker-entrypoint-initdb.d/",
+			//	path.GetProjectRootPath()+"/test/init/",
+			//),
 		},
 	}
 
@@ -58,7 +62,7 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 		MysqlDATABASE,
 	)
 	if err := pool.Retry(func() error {
-		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		db, err = gorm.Open(gormmysql.Open(dsn), &gorm.Config{
 			Logger: gormlogger.Default.LogMode(gormlogger.Silent),
 		})
 		if err != nil {
@@ -68,12 +72,13 @@ func ConnectMySQLContainer(resource *dockertest.Resource, pool *dockertest.Pool)
 		if err != nil {
 			return err
 		}
-		sqlDB.SetConnMaxLifetime(10 * time.Second)
-		sqlDB.SetMaxIdleConns(0)
 		return sqlDB.Ping()
 	}); err != nil {
 		logger.Fatalf("Could not connect to docker: %s", err)
 	}
+
+	initMigrations(db)
+
 	return db
 }
 
@@ -105,5 +110,25 @@ func CloseContainer(resource *dockertest.Resource) {
 	// stop container
 	if err := pool.Purge(resource); err != nil {
 		logger.Fatalf("Could not purge resource: %s", err)
+	}
+}
+
+func initMigrations(db *gorm.DB) {
+	instance, err := db.DB()
+	if err != nil {
+		logger.Warn(err)
+	}
+	driver, _ := mysql.WithInstance(instance, &mysql.Config{})
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://"+path.GetProjectRootPath()+"/db/migrations",
+		"test",
+		driver,
+	)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	err = m.Up()
+	if err != nil {
+		logger.Info(err)
 	}
 }

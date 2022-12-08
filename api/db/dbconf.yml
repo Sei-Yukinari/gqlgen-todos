@@ -1,7 +1,0 @@
-development:
-  driver: mymysql
-  open: tcp:$DB_HOST:$DB_PORT*$DB_DATABASE/$DB_USERNAME/$DB_PASSWORD
-
-test:
-  driver: mymysql
-  open: tcp:$DB_HOST:$DB_PORT*$TEST_DB_NAME/$DB_USERNAME/$DB_PASSWORD

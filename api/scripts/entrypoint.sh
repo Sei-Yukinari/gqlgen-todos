@@ -3,7 +3,9 @@
 set -e
 
 # db migration
-goose up
+migrate -source file://db/migrations -database \
+ "mysql://$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE" \
+  up
 echo "migrated."
 
 # 起動

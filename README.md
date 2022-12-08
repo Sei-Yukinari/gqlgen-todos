@@ -17,6 +17,7 @@ graph LR
 * gqlgen v0.17.*
 * gin 1.8.* (web framework)
 * gorm v2 1.24.* (orm)
+* golang-migrate V4.15.*(migrate)
 * wire v0.5.*(di)
 
 ### front
@@ -44,4 +45,16 @@ di generate ([wire](https://github.com/google/wire))
 $ make exec api
 ## in container
 $ make di
+```
+
+db migrate ([golang-migrate](https://github.com/golang-migrate/migrate))
+```bash
+$ make exec api
+## in container
+### create migration template
+$ migrate create -ext sql -dir db/migrations -seq create_todos_table
+### migration up
+$ migrate -source file://db/migrations -database "mysql://$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE" up
+### migration up
+$ migrate -source file://db/migrations -database "mysql://$DB_USERNAME:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE" down
 ```
