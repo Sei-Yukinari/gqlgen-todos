@@ -11,7 +11,7 @@ import (
 )
 
 func TestTodo_Create(t *testing.T) {
-	rdb := test.SetupRDB(t, mysqlContainer)
+	rdb := test.NewRDB(t, mysqlContainer)
 	t.Run("Create TODO", func(t *testing.T) {
 		actual := &model.Todo{
 			ID:     1,
@@ -27,7 +27,7 @@ func TestTodo_Create(t *testing.T) {
 }
 
 func TestTodo_FindAll(t *testing.T) {
-	rdb := test.SetupRDB(t, mysqlContainer)
+	rdb := test.NewRDB(t, mysqlContainer)
 	t.Run("Get TODO ALL", func(t *testing.T) {
 		actual := []model.Todo{
 			{

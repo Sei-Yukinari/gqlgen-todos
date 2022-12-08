@@ -11,7 +11,7 @@ import (
 )
 
 func TestUser_FindByIDs(t *testing.T) {
-	rdb := test.SetupRDB(t, mysqlContainer)
+	rdb := test.NewRDB(t, mysqlContainer)
 	t.Run("GET Users By IDs", func(t *testing.T) {
 		actual := []*model.User{
 			{

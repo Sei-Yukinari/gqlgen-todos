@@ -24,7 +24,8 @@ func newPool() *dockertest.Pool {
 	return pool
 }
 
-func SetupRDB(t *testing.T, resource *dockertest.Resource) *gorm.DB {
+// NewRDB create mysql container
+func NewRDB(t *testing.T, resource *dockertest.Resource) *gorm.DB {
 	rdb := ConnectMySQLContainer(resource, pool)
 	tx := rdb.Begin()
 	t.Cleanup(func() {
@@ -33,7 +34,8 @@ func SetupRDB(t *testing.T, resource *dockertest.Resource) *gorm.DB {
 	return tx
 }
 
-func SetupRedis(t *testing.T, resource *dockertest.Resource) *redis.Client {
+// NewRedis create redis container
+func NewRedis(t *testing.T, resource *dockertest.Resource) *redis.Client {
 	cache := ConnectRedisContainer(resource, pool)
 	t.Cleanup(func() {
 		cache.FlushDB(context.Background())

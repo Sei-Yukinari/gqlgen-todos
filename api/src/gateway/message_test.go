@@ -13,7 +13,7 @@ import (
 )
 
 func TestMessage_PostAndPublish(t *testing.T) {
-	r := test.SetupRedis(t, redisContainer)
+	r := test.NewRedis(t, redisContainer)
 	t.Run("Post And Publish", func(t *testing.T) {
 		actual := &model.Message{
 			ID:        "1",
@@ -29,7 +29,7 @@ func TestMessage_PostAndPublish(t *testing.T) {
 }
 
 func TestMessage_Subscribe(t *testing.T) {
-	r := test.SetupRedis(t, redisContainer)
+	r := test.NewRedis(t, redisContainer)
 	actual := &model.Message{
 		ID:        "1",
 		User:      "Dummy User",
@@ -71,7 +71,7 @@ func TestMessage_Subscribe(t *testing.T) {
 }
 
 func TestMessage_FindAll(t *testing.T) {
-	r := test.SetupRedis(t, redisContainer)
+	r := test.NewRedis(t, redisContainer)
 	t.Run("GET Message ALL", func(t *testing.T) {
 		actual := []*model.Message{
 			{

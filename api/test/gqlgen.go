@@ -13,8 +13,8 @@ import (
 )
 
 func NewResolverMock(t *testing.T, mysqlContainer, redisContainer *dockertest.Resource) *resolver.Resolver {
-	rdb := SetupRDB(t, mysqlContainer)
-	redis := SetupRedis(t, redisContainer)
+	rdb := NewRDB(t, mysqlContainer)
+	redis := NewRedis(t, redisContainer)
 	repositories := gateway.NewRepositories(rdb, redis)
 	s := subscriber.New(repositories)
 	p := presenter.New()
