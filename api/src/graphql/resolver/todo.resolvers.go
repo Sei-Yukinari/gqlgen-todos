@@ -32,7 +32,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input gmodel.NewTodo)
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*gmodel.Todo, error) {
-	todos, err := r.Repositories.Todo.FindAll(ctx)
+	todos, err := r.UseCase.Todo.Get(ctx)
 	if err != nil {
 		gerror.HandleError(ctx, apperror.Wrap(err))
 		return nil, nil

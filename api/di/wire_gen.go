@@ -18,6 +18,7 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/server"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/interfaces"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/interfaces/presenter"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -29,8 +30,9 @@ func InitRouter() *gin.Engine {
 	client := redis.New()
 	repositories := gateway.NewRepositories(db, client)
 	subscribers := subscriber.New(repositories)
+	useCases := usecase.NewUseCases(repositories)
 	presenterPresenter := presenter.New()
-	resolverResolver := resolver.New(db, client, subscribers, repositories, presenterPresenter)
+	resolverResolver := resolver.New(db, client, subscribers, repositories, useCases, presenterPresenter)
 	loaders := loader.New(repositories)
 	v := server.NewMiddleware(loaders)
 	engine := server.NewRouter(resolverResolver, v)
@@ -39,4 +41,4 @@ func InitRouter() *gin.Engine {
 
 // wire.go:
 
-var Set = wire.NewSet(infrastructure.Set, interfaces.Set, graphql.Set, gateway.Set)
+var Set = wire.NewSet(infrastructure.Set, interfaces.Set, usecase.Set, graphql.Set, gateway.Set)

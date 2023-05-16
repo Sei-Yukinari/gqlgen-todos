@@ -9,6 +9,7 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/subscriber"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/server"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/interfaces/presenter"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/usecase"
 	"github.com/ory/dockertest/v3"
 )
 
@@ -17,8 +18,9 @@ func NewResolverMock(t *testing.T, mysqlContainer, redisContainer *dockertest.Re
 	redis := NewRedis(t, redisContainer)
 	repositories := gateway.NewRepositories(rdb, redis)
 	s := subscriber.New(repositories)
+	u := usecase.NewUseCases(repositories)
 	p := presenter.New()
-	return resolver.New(rdb, redis, s, repositories, p)
+	return resolver.New(rdb, redis, s, repositories, u, p)
 }
 
 func NewGqlgenClient(r *resolver.Resolver) *client.Client {

@@ -7,6 +7,7 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql/subscriber"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure/redis"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/interfaces/presenter"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/usecase"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +20,7 @@ type Resolver struct {
 	Redis        *redis.Client
 	Subscribers  subscriber.Subscribers
 	Repositories *gateway.Repositories
+	UseCase      *usecase.UseCases
 	Presenter    *presenter.Presenter
 	mutex        sync.Mutex
 }
@@ -28,6 +30,7 @@ func New(
 	redis *redis.Client,
 	subscribers subscriber.Subscribers,
 	repositories *gateway.Repositories,
+	useCases *usecase.UseCases,
 	presenter *presenter.Presenter,
 ) *Resolver {
 	return &Resolver{
@@ -35,6 +38,7 @@ func New(
 		Redis:        redis,
 		Subscribers:  subscribers,
 		Repositories: repositories,
+		UseCase:      useCases,
 		Presenter:    presenter,
 		mutex:        sync.Mutex{},
 	}

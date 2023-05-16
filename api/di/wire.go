@@ -8,6 +8,7 @@ import (
 	"github.com/Sei-Yukinari/gqlgen-todos/src/graphql"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/infrastructure"
 	"github.com/Sei-Yukinari/gqlgen-todos/src/interfaces"
+	"github.com/Sei-Yukinari/gqlgen-todos/src/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -15,6 +16,7 @@ import (
 var Set = wire.NewSet(
 	infrastructure.Set,
 	interfaces.Set,
+	usecase.Set,
 	graphql.Set,
 	gateway.Set,
 )
